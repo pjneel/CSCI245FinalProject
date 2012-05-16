@@ -1,0 +1,21 @@
+/* XPM */
+static const char *goup[]={
+"15 15 3 1",
+"a c #000000",
+"# c #004000",
+". c #ffffff",
+"...............",
+"..#####........",
+"....###....aaa.",
+"...####....aaa.",
+"..###.#....aaa.",
+".###..#.aaaaaa.",
+".##.....aaaaaa.",
+"........aaaaaa.",
+".....aaaaaaaaa.",
+".....aaaaaaaaa.",
+".....aaaaaaaaa.",
+"..aaaaaaaaaaaa.",
+"..aaaaaaaaaaaa.",
+"..aaaaaaaaaaaa.",
+"..............."};

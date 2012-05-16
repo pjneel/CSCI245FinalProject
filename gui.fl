@@ -1,0 +1,172 @@
+# data file for the Fltk User Interface Designer (fluid)
+version 1.0300 
+header_name {.h} 
+code_name {.cxx}
+decl {\#include <iostream>} {private local
+} 
+
+decl {\#include <cstring>} {private local
+} 
+
+decl {\#include <cstdarg>} {private local
+} 
+
+decl {\#include <cstdio>} {private local
+} 
+
+declblock {\#ifdef NEEDVSNPRINTF} {open public after {\#endif}
+} {
+  decl {\#include <stdarg.h>} {public local
+  }
+  decl {int vsnprintf (char *, unsigned int, const char *, va_list);} {public local
+  }
+} 
+
+decl {\#include "game.h"} {public local
+} 
+
+decl {int debug;} {public local
+} 
+
+decl {Game game;} {public local
+} 
+
+decl {void readgame(int &,char **&);} {public local
+} 
+
+Function {} {open
+} {
+  Fl_Window MainWin {open
+    xywh {65 81 1020 655} type Double color 7 hide
+    code0 {o->clear_visible_focus();}
+  } {
+    Fl_Box play_area {
+      label label
+      xywh {0 0 750 600} box FLAT_BOX labeltype NO_LABEL labelcolor 7 when 1
+      code0 {\#include "PlayArea.h"}
+      class PlayArea
+    }
+    Fl_Browser gui_textout {
+      xywh {750 0 270 600}
+    }
+    Fl_Output gui_level {
+      label {Level:}
+      xywh {65 615 50 25} box FLAT_BOX
+      code0 {o->clear_visible_focus();}
+    }
+    Fl_Output gui_gold {
+      label {Gold:}
+      xywh {170 615 50 25} box FLAT_BOX
+      code0 {o->clear_visible_focus();}
+    }
+    Fl_Output gui_health {
+      label {Health:}
+      xywh {290 615 50 25} box FLAT_BOX
+      code0 {o->clear_visible_focus();}
+    }
+    Fl_Button gui_west {
+      callback {game.move(WEST);
+play_area->redraw();}
+      tooltip West image {xpms/west.xpm} xywh {365 615 25 25} shortcut 0x68
+    }
+    Fl_Button gui_north {
+      callback {game.move(NORTH);
+play_area->redraw();}
+      tooltip North image {xpms/north.xpm} xywh {395 615 25 25} shortcut 0x6b
+    }
+    Fl_Button gui_south {
+      callback {game.move(SOUTH);
+play_area->redraw();}
+      tooltip South image {xpms/south.xpm} xywh {425 615 25 25} shortcut 0x6a
+    }
+    Fl_Button gui_east {
+      callback {game.move(EAST);
+play_area->redraw();}
+      tooltip East image {xpms/east.xpm} xywh {455 615 25 25} shortcut 0x6c
+    }
+    Fl_Button gui_down {
+      callback {game.move(DOWN);
+play_area->redraw();}
+      tooltip down image {xpms/down.xpm} xywh {495 615 25 25} shortcut 0x76
+    }
+    Fl_Button gui_up {
+      callback {game.move(UP);
+play_area->redraw();}
+      tooltip Up image {xpms/up.xpm} xywh {525 615 25 25} shortcut 0x5e
+    }
+    Fl_Button {} {
+      label inventory
+      callback {game.inventory();
+play_area->redraw();}
+      xywh {620 615 80 25} shortcut 0x69 color 7
+    }
+    Fl_Input gui_in {
+      xywh {755 615 55 25}
+    }
+    Fl_Menu_Bar {} {
+      callback {play_area->redraw();} open
+      xywh {835 615 115 25} color 7
+    } {
+      Submenu {} {
+        label action
+        callback {play_area->redraw();} open
+        xywh {0 0 100 20}
+      } {
+        MenuItem {} {
+          label drop
+          callback {game.drop();
+play_area->redraw();}
+          xywh {0 0 100 20} shortcut 0x64
+        }
+        MenuItem {} {
+          label eat
+          callback {game.eat();
+play_area->redraw();}
+          xywh {0 0 100 20} shortcut 0x65
+        }
+        MenuItem {} {
+          label drink
+          callback {game.drink();
+play_area->redraw();}
+          xywh {0 0 100 20} shortcut 0x71
+        }
+      }
+      Submenu {} {
+        label game
+        callback {play_area->redraw();} open
+        xywh {0 0 100 20}
+      } {
+        MenuItem {} {
+          label start
+          callback {game.start();
+play_area->redraw();}
+          xywh {0 0 100 20} shortcut 0x73
+        }
+        MenuItem {} {
+          label quit
+          callback {game.quit();
+play_area->redraw();}
+          xywh {0 0 100 20} shortcut 0x78
+        }
+      }
+    }
+  }
+  code {if (argc>1 && strcmp(argv[1],"-d") == 0) {
+  debug = true;
+  argc--;
+  argv++;
+}
+readgame(argc,argv);} {}
+} 
+
+Function {gui_message(const char *fmt, ...)} {open selected
+} {
+  code {va_list ap;
+char mesg[1024];
+
+va_start(ap,fmt);
+vsnprintf (mesg, 1024, fmt, ap);
+gui_textout->add(mesg);
+gui_textout->bottomline(gui_textout->size());
+va_end(ap);} {}
+} 

@@ -1,1 +1,66 @@
-This is a first try at committing.  Apparently I have a problem with commitment. -Paul
+Some notes on the program!
+
+0) Running the program:
+
+	./game
+
+   Starts the game with the "debug" flag set to false.
+
+	./game -d
+
+   Starts the game with the "debug" flag set to true.
+
+   To have the game read your own description file, add the name of
+   the file to the command line:
+
+	./game yourgame.txt
+
+1) Feel free to change the GUI if you like.  Don't waste a lot of time on 
+   the GUI.  Any questions, just ask!
+
+2) On UNIX, just type "make".
+
+   It may be possible that you need to change the instances
+   of /usr/pkg to /usr/local, especially if you install your
+   own local copy of fltk.  See the file "Makefile" for the
+   places to change /usr/pkg to /usr/local.
+
+3) You can get a current distribution (1.1.10 as of 11/4/10) from fltk.org.
+   (That version is on the local machines.)
+
+4) Suggestions ..
+
+	Make sure your code compiles often!
+
+	If you know a source control tool like CVS, Subversion or
+	  SourcSafe and have access to it, it would be good to use.
+
+5) Suggested order in which to do your code:
+
+	A) Build minimum object framework to support the game.
+
+	B) Build the levels (rooms, paths), implement basic draw().
+		See the file game.cxx and look for the build routines.
+
+	C) Add placing all other objects on the board.
+
+	D) Add movement of the player.
+
+	E) Add manipulation objects (gold, food, ...)
+
+	F) Add movement of monsters.
+
+	G) Add health and combat features.
+
+	H) Add final touches ...
+
+6) You should not have to change any of the following files:
+	PlayArea.c PlayArea.cxx
+        lexfile.h lexfile.cxx
+        readgame.cxx
+        xpms/* (these are the graphics)
+
+7) Running the "reference version"
+	You can run my completed game by:
+	cd to a directory with a game description like simple.txt.
+	give the commend "/home/phil/.bin/game"
