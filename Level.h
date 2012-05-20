@@ -27,6 +27,8 @@ public:
 	void AddItem(LevelObject lo, int xPosition, int yPosition);
 	LevelObject ObjectAt(int xPosition, int yPosition);
 	LevelObject RemoveItem(int xPosition, int yPosition);
+   bool IsWalkable(int xPosition, int yPosition);
+   bool IsMonsterAt(int xPosition, int yPosition);
 };
 
 #endif

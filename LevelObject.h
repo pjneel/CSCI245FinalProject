@@ -8,13 +8,21 @@
 #define	LEVELOBJECT_H
 
 class Player;
+class Room;
 
 enum TrapType {ARROW, TRANSPORT};
-enum TileType {WALL, PATH, WHITE, UP, DOWN};
+enum TileType {WALL, PATH, WHITE, BLACK, UP, DOWN};
 enum ConsumablesType {FOOD, GOOD_DRINK, BAD_DRINK};
 
 class LevelObject 
-{};
+{
+public:
+   bool IsVisible();
+   void SetVisible();
+private:
+   bool visible;
+   Room* room;
+};
 
 class Gold : public LevelObject
 {
@@ -28,8 +36,7 @@ public:
    void Activate(Player P);
    
 private:
-   TrapType type;
-   bool visible;   
+   TrapType type;  
 };
 
 class Tile : public LevelObject
