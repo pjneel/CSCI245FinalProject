@@ -12,7 +12,7 @@ class Room;
 
 enum TrapType {ARROW, TRANSPORT};
 enum TileType {T_WALL, T_PATH, T_WHITE, T_BLACK, T_UP, T_DOWN};
-enum ConsumablesType {C_FOOD, C_GOOD_DRINK, C_adBAD_DRINK};
+enum ConsumablesType {C_FOOD, C_GOOD_DRINK, C_adlLBAD_DRINK};
 
 class LevelObject 
 {
@@ -24,29 +24,32 @@ private:
    Room* room;
 };
 
+
 class Gold : public LevelObject
 {
 public:   
    int GetGold();
 };
+
    
 class Trap : public LevelObject
 {
 public:
-   void Activate(Player P);
-   
+   void Activate(Player P);   
 private:
    TrapType type;  
 };
+
 
 class Tile : public LevelObject
 {
 public:
    bool IsWalkable();
-   
+   Tile(TileType t);   
 private:
    TileType type;   
 };
+
 
 class Item : public LevelObject
 {   

@@ -49,4 +49,12 @@ bool Tile::IsWalkable() const
    else return true;
 }
 
+void Tile::Tile(TileType t)
+{
+   type = t;
+}
+
+
+
+
 
