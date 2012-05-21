@@ -11,8 +11,8 @@ class Player;
 class Room;
 
 enum TrapType {ARROW, TRANSPORT};
-enum TileType {WALL, PATH, WHITE, BLACK, UP, DOWN};
-enum ConsumablesType {FOOD, GOOD_DRINK, BAD_DRINK};
+enum TileType {T_WALL, T_PATH, T_WHITE, T_BLACK, T_UP, T_DOWN};
+enum ConsumablesType {C_FOOD, C_GOOD_DRINK, C_adBAD_DRINK};
 
 class LevelObject 
 {

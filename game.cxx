@@ -3,6 +3,10 @@
 
 #include "gui.h"
 #include "game.h"
+#include "Level.h"
+#include "LevelObject.h"
+#include "Monster.h"
+#include "Player.h"
 
 #include <FL/fl_ask.H>
 #include <cstdio>
@@ -11,6 +15,10 @@
 using namespace std;
 
 // Utility routine:  called like printf.
+const int MAX_LEVELS = 10;
+
+Level* levels[MAX_LEVELS];
+int currentLevel = -1;
 
 void Game::error(char *fmt, ...)
 {
@@ -31,11 +39,14 @@ void Game::error(char *fmt, ...)
 void Game::SetBuildLevel (int newlevel)
 { 
   if (debug) printf ("SetBuildLevel -> %d.\n", newlevel);
+  levels[newlevel] = new Level();
+  currentLevel = newlevel;    
 }
 
 void Game::NewRoom (int row, int col, int width, int height)
 {
   if (debug) printf ("NewRoom(%d,%d,%d,%d)\n", row, col, width, height);
+  
 }
 
 void Game::NewPath (int row1, int col1, int row2, int col2)

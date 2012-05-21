@@ -7,7 +7,7 @@
 
 class Player;
 
-enum MonsterType {RAT, SNAKE};
+enum MonsterType {M_RAT, M_SNAKE};
 
 class Monster
 {
