@@ -19,6 +19,9 @@ public:
 private:
    MonsterType type;
    int health;   
+   Room* room;
+   LevelObject* beneath;
+
 };
 #endif	/* MONSTER_H */
 
