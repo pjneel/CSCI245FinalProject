@@ -21,6 +21,8 @@ private:
 	int yPos;
 	int hunger;
 	int moveCount;
+	Room* room;
+	LevelObject* beneath;
 public:
 	Player();
 	Player(int xPos, int yPos);
