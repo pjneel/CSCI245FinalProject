@@ -2,14 +2,14 @@
 // Class: CSCI 245
 // Assignment: 4
 
-
-
 #ifndef PLAYER_H
 #define PLAYER_H
 
 class LevelObject;
 class Monster;
 class Consumable;
+class Item;
+class Room;
 
 class Player 
 {

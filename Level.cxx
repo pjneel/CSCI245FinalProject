@@ -3,10 +3,11 @@
 // Assignment: 4
 
 #include "Level.h"
+#include <typeinfo>
 
 using namespace std;
 
-void Level::Level()
+Level::Level()
 {
    for (int i = 0; i < X_GRID_SIZE; i++)
    {
@@ -40,9 +41,10 @@ bool Level::IsWalkable(int xPosition, int yPosition) const
 {
    LevelObject* temp = grid[xPosition][yPosition];
    bool tileWalkable = false;
-   if (typeid(temp).name == "Tile")
+   if (typeid(*temp).name() == "Tile")
    {
-      tileWalkable = temp->IsWalkable();
+      //Tile* t = dynamic_cast<Tile*>(temp);
+      tileWalkable = grid[xPosition][yPosition]->IsWalkable();
    }
    else tileWalkable = true;
 
@@ -63,7 +65,8 @@ bool Level::IsMonsterAt(int xPosition, int yPosition) const
 
 void Level::AddRoom(int xPosition, int yPosition, int width, int height)
 {   
-   rooms.push_back(new Room(xPosition, yPosition, width, height));
+   Room* temp = new Room(xPosition, yPosition, width, height);
+   rooms.push_back(*temp);
 }
 
 void Level::SetStart(int xPosition, int yPosition)

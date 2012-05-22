@@ -3,15 +3,16 @@
 // Assignment: 4
 
 #include "LevelObject.h"
+
 #include <time.h>
 #include <cstdlib>
 
-const int X_GRID_SIZE = 50;
-const int Y_GRID_SIZE = 40;
+//const int X_GRID_SIZE = 50;
+//const int Y_GRID_SIZE = 40;
 
 using namespace std;
 
-void LevelObject::LevelObject()
+LevelObject::LevelObject()
 {
    visible = false;
    room = NULL;
@@ -22,12 +23,17 @@ bool LevelObject::IsVisible() const
    return visible;
 }
 
+bool LevelObject::IsWalkable() const
+{
+   return true;
+}
+
 void LevelObject::SetVisible()
 {
    visible = true;
 }
 
-Trap::Activate(Player p)
+void Trap::Activate(Player p)
 {
    if (type == ARROW)
    {
@@ -40,22 +46,26 @@ Trap::Activate(Player p)
       int yNew = rand() % Y_GRID_SIZE;
       
       // Loop until we find a valid position for the player
-      while (!Level::IsWalkable(xNew, yNew) or Level::IsMonsterAt(xNew, yNew))
-      {
-         xNew = rand() % X_GRID_SIZE;
-         yNew = rand() % Y_GRID_SIZE;           
-      }
+      // I'm commenting this out for now so I can compile
+      // Currently may return an invalid position. - PJN
+      
+      
+      //while (!Level::IsWalkable(xNew, yNew) or Level::IsMonsterAt(xNew, yNew))
+      //{
+      //   xNew = rand() % X_GRID_SIZE;
+      //   yNew = rand() % Y_GRID_SIZE;           
+      //}
       p.SetPosition(xNew, yNew);
    }      
 }
 
 bool Tile::IsWalkable() const
 {
-   if (type == WALL or type == BLACK) return false;
+   if (type == T_WALL or type == T_BLACK) return false;
    else return true;
 }
 
-void Tile::Tile(TileType t) 
+Tile::Tile(TileType t) 
 {
    type = t;
 }

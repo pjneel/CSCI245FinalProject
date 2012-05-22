@@ -6,6 +6,8 @@
 #include "lexfile.h"
 #include <iostream>
 
+class Level;
+
 // types
 enum direction {WEST, NORTH, SOUTH, EAST, DOWN, UP};
 
@@ -17,7 +19,7 @@ class Game {
   // May want to add code to initialize student defined
   // private data.
 
-  Game() : had_error(false), playing(false) {};
+  Game();
 
   // Routines to build the game
 
@@ -46,8 +48,8 @@ class Game {
  private:
   bool had_error;
   bool playing;
-
-  // STUDENT ADDS PRIVATE DATA HERE
+  Level* levels[10];
+  int currentLevel; 
    
 };
 

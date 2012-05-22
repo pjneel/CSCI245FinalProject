@@ -18,8 +18,8 @@ public:
    void Move(int direction);   
    void ChangeHealth(int health);   
    void Combat(Player p);   
-   int GetX();
-   int GetY();
+   int GetX() const;
+   int GetY() const;
 private:
    MonsterType type;
    int health;   

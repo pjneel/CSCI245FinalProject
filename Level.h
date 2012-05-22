@@ -11,13 +11,16 @@ using namespace std;
 
 #include <vector>
 #include <iostream>
+#include "LevelObject.h"
+#include "Monster.h"
+#include "Room.h"
 
 const int X_GRID_SIZE = 50;
 const int Y_GRID_SIZE = 40;
 
-class LevelObject;
-class Monster;
-class Room;
+//class LevelObject;
+//class Monster;
+//class Room;
 
 class Level
 {

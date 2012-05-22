@@ -16,8 +16,7 @@ using namespace std;
 
 // Utility routine:  called like printf.
 
-Level* levels[Game::getMaxLevel()];
-int currentLevel = -1;
+const int MAX_LEVELS = 10;
 
 void Game::error(char *fmt, ...)
 {
@@ -45,7 +44,7 @@ void Game::SetBuildLevel (int newlevel)
 void Game::NewRoom (int x, int y, int width, int height)
 {
   if (debug) printf ("NewRoom(%d,%d,%d,%d)\n", x, y, width, height);
-  levels[currentLevel].AddRoom(x, y, width, height);  
+  levels[currentLevel]->AddRoom(x, y, width, height);  
 }
 
 void Game::NewPath (int x1, int y1, int x2, int y2)
@@ -58,16 +57,18 @@ void Game::NewPath (int x1, int y1, int x2, int y2)
          for (int j = y1; j <= y2; j++) 
          {
             Tile* t = new Tile(T_PATH);
-            levels[currentLevel].AddItem(t, x1, j);  
+            levels[currentLevel]->AddItem(t, x1, j);  
          }
+      }
       else // y1 >= y2
       {
          for (int j = y2; j <= y1; j++)
          {          
             Tile* t = new Tile(T_PATH);
-            levels[currentLevel].AddItem(t, x1, j);
+            levels[currentLevel]->AddItem(t, x1, j);
          }    
       }
+   }
    else // y1 == y2
    {
       if (x1 < x2)
@@ -75,14 +76,15 @@ void Game::NewPath (int x1, int y1, int x2, int y2)
          for (int i = x1; i <= x2; i++)
          {  
             Tile* t = new Tile(T_PATH);
-            levels[currentLevel].AddItem(t, i, y1);
+            levels[currentLevel]->AddItem(t, i, y1);
          }
+      }
       else // x1 >= x2
       {
          for (int i = x2; i <= x1; i++)
          {
             Tile* t = new Tile(T_PATH);
-            levels[currentLevel].AddItem(t, i, y1);
+            levels[currentLevel]->AddItem(t, i, y1);
          }
       }
    }
@@ -91,7 +93,7 @@ void Game::NewPath (int x1, int y1, int x2, int y2)
 void Game::SetStart (int x, int y)
 {
   if (debug) printf ("Level starts at (%d,%d)\n", x, y);
-  levels[currentLevel].SetStart(x, y);  
+  levels[currentLevel]->SetStart(x, y);  
 }
 
 void Game::PlaceAt (token what, int x, int y)
@@ -188,6 +190,17 @@ void Game::move (direction dir)
   if (debug)
     printf ("Move %d\n", dir);
   gui_message("move -> %d", dir);
+}
+
+Game::Game()
+{
+   had_error = false;
+   playing = false;
+   for (int i = 0; i < MAX_LEVELS; i++)
+   {
+      levels[i] = NULL;
+   }
+   currentLevel = -1;
 }
 
 
