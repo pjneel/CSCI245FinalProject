@@ -37,6 +37,8 @@ public:
 	int GetX();
 	int GetY();
 	int GetHunger();
+	Room* GetRoom();
+	LevelObject* GetBeneath();
 };
 
 #endif
