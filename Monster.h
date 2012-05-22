@@ -6,6 +6,8 @@
 #define	MONSTER_H
 
 class Player;
+class Room;
+class LevelObject;
 
 enum MonsterType {M_RAT, M_SNAKE};
 
@@ -16,12 +18,15 @@ public:
    void Move(int direction);   
    void ChangeHealth(int health);   
    void Combat(Player p);   
+   int GetX();
+   int GetY();
 private:
    MonsterType type;
    int health;   
    Room* room;
    LevelObject* beneath;
-
+   int xPosition;
+   int yPosition;
 };
 #endif	/* MONSTER_H */
 

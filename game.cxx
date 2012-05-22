@@ -98,7 +98,7 @@ void Game::PlaceAt (token what, int x, int y)
 {
   if (debug) printf ("Place %s at (%d,%d)\n", tok_name[what], x, y);
   if (debug && what == t_diamond)
-    printf ("Place the diamond at (%d,%d)...\n", x, y);    
+    printf ("Place the diamond at (%d,%d)...\n", x, y);
 }
 
 // Routines to play the game

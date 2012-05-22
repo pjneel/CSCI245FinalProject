@@ -17,6 +17,7 @@ enum ConsumablesType {C_FOOD, C_GOOD_DRINK, C_adlLBAD_DRINK};
 class LevelObject 
 {
 public:
+   LevelObject();
    bool IsVisible();
    void SetVisible();
 private:

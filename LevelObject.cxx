@@ -11,6 +11,12 @@ const int Y_GRID_SIZE = 40;
 
 using namespace std;
 
+void LevelObject::LevelObject()
+{
+   visible = false;
+   room = NULL;
+}
+
 bool LevelObject::IsVisible() const
 {
    return visible;
@@ -49,7 +55,7 @@ bool Tile::IsWalkable() const
    else return true;
 }
 
-void Tile::Tile(TileType t)
+void Tile::Tile(TileType t) 
 {
    type = t;
 }
