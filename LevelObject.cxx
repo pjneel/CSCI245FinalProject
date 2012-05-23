@@ -3,12 +3,13 @@
 // Assignment: 4
 
 #include "LevelObject.h"
+#include "Player.h"
 
 #include <time.h>
 #include <cstdlib>
 
-//const int X_GRID_SIZE = 50;
-//const int Y_GRID_SIZE = 40;
+const int X_GRID_SIZE = 50;
+const int Y_GRID_SIZE = 40;
 
 using namespace std;
 

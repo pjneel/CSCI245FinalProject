@@ -1,12 +1,10 @@
 // game.cxx -- the implementation part of the interface
 
 
-#include "gui.h"
 #include "game.h"
+#include "gui.h"
 #include "Level.h"
 #include "LevelObject.h"
-#include "Monster.h"
-#include "Player.h"
 
 #include <FL/fl_ask.H>
 #include <cstdio>

@@ -11,23 +11,21 @@ using namespace std;
 
 #include <vector>
 #include <iostream>
-#include "LevelObject.h"
-#include "Monster.h"
-#include "Room.h"
+
 
 const int X_GRID_SIZE = 50;
 const int Y_GRID_SIZE = 40;
 
-//class LevelObject;
-//class Monster;
-//class Room;
+class LevelObject;
+class Monster;
+class Room;
 
 class Level
 {
 private:
 	LevelObject* grid[X_GRID_SIZE][Y_GRID_SIZE];
-	vector<Monster> monsters;
-	vector<Room> rooms;
+	vector<Monster*> monsters;
+	vector<Room*> rooms;
 	int xStart;
 	int yStart;
 public:

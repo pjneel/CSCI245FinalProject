@@ -5,10 +5,12 @@
 #ifndef PLAYER_H
 #define PLAYER_H
 
-class LevelObject;
+#include "LevelObject.h"
+
+//class LevelObject;
 class Monster;
-class Consumable;
-class Item;
+//class Consumable;
+//class Item;
 class Room;
 
 class Player 
@@ -16,7 +18,7 @@ class Player
 private:
 	int health;
 	int gold;
-	Item inventory[10];
+	Item* inventory[10];
 	int xPos;
 	int yPos;
 	int hunger;
@@ -29,9 +31,9 @@ public:
 	void Move(int direction);
 	void SetPosition(int x, int y);
 	void Die();
-	void Pickup(LevelObject o);
-	void Combat(Monster m);
-	void Consume(Consumable c);
+	bool Pickup(Item* o);
+	void Combat(Monster* m);
+	void Consume(Consumable* c);
 	void ChangeGold(int amount);
 	void ChangeHealth(int amount);
 	int GetX();

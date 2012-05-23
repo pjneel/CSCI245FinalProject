@@ -1,7 +1,7 @@
 PROG=game
 
 # Add your .cxx files here.  They need the .cxx extension.
-SRCS=gui.cxx PlayArea.cxx game.cxx lexfile.cxx readgame.cxx Level.cxx LevelObject.cxx Player.cxx
+SRCS=gui.cxx PlayArea.cxx game.cxx lexfile.cxx readgame.cxx Level.cxx LevelObject.cxx Player.cxx Monster.cxx Room.cxx
 
 OBJ1=$(SRCS:.cxx=.o)
 OBJS=$(OBJ1:.cpp=.o)
@@ -50,12 +50,12 @@ testread: lexfile.h lexfile.cxx readgame.cxx
 
 gui.o: gui.fl gui.cxx
 gui.o PlayArea.o: PlayArea.h
-game.o: game.h gui.fl PlayArea.h
+game.o: game.h gui.fl PlayArea.h 
 PlayArea.o: xpms/*.xpm
 lexfile.o: lexfile.h
 readgame.o: lexfile.h
-Level.o: Level.h
-LevelObject.o: LevelObject.h
+Level.o: Level.h LevelObject.h Monster.h Room.h
+LevelObject.o: LevelObject.h Player.h
 Monster.o: Monster.h
 Player.o: Player.h
 Room.o: Room.h

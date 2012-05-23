@@ -3,6 +3,11 @@
 // Assignment: 4
 
 #include "Level.h"
+
+#include "LevelObject.h"
+#include "Monster.h"
+#include "Room.h"
+
 #include <typeinfo>
 
 using namespace std;
@@ -55,7 +60,7 @@ bool Level::IsMonsterAt(int xPosition, int yPosition) const
 {
    for (int i = 0; i < monsters.size(); i++)
    {
-      if (monsters[i].GetX() == xPosition and monsters[i].GetY() == yPosition)
+      if (monsters[i]->GetX() == xPosition and monsters[i]->GetY() == yPosition)
       {
          return true;        
       }
@@ -66,7 +71,7 @@ bool Level::IsMonsterAt(int xPosition, int yPosition) const
 void Level::AddRoom(int xPosition, int yPosition, int width, int height)
 {   
    Room* temp = new Room(xPosition, yPosition, width, height);
-   rooms.push_back(*temp);
+   rooms.push_back(temp);
 }
 
 void Level::SetStart(int xPosition, int yPosition)

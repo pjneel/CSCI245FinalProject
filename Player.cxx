@@ -4,18 +4,13 @@
 
 #include "Player.h"
 
-void Level::AddItem(LevelObject* lo, int xPosition, int yPosition)
-{
-   grid[xPosition][yPosition] = lo;
-}
-
-Player::Player
+Player::Player()
 {
 	this->health = 10;
 	this->gold = 0;
 	this->hunger = 200;
-	this->xPos = NULL;
-	this->yPos = NULL;
+	this->xPos = -1;
+	this->yPos = -1;
 	this->moveCount = 0;
 	for(int i = 0; i < 10; i++) inventory[i] = NULL;
 	this->room = NULL;
@@ -40,7 +35,7 @@ void Player::Move(int direction)
 	if(direction == 0) this->xPos += 1;
 	else if (direction == 1) this->xPos -= 1;
 	else if (direction == 2) this->yPos += 1;
-	else if (directrion == 3) this->yPos -= 1;
+	else if (direction == 3) this->yPos -= 1;
 	
 	// Need else statement here for invalid direction
 	// Possibly change function from void to boolean and return false if error
@@ -55,7 +50,8 @@ void Player::Die()
 {
 	this->health = 0;
 }
-void Player::Pickup(LevelObject o) // We should probably change this to LevelObject* o
+
+bool Player::Pickup(Item* o) 
 {
 	bool isPlaced = false;
 	for(int i = 0; i < 10 && !isPlaced; i++)
@@ -66,15 +62,15 @@ void Player::Pickup(LevelObject o) // We should probably change this to LevelObj
 			isPlaced = true;
 		}
 	}
-	// Let's change this function to return boolean
-	// True if succesful placement into inventory
-	// False if inventory full
+	return isPlaced;
 }
-void Player::Combat(Monster m) // Change to Monster* m
+
+void Player::Combat(Monster* m) 
 {
 	//I need to research the randomization of this
 }
-void Player::Consume(Consumable c) // Change to Consumable* c
+
+void Player::Consume(Consumable* c)
 {
 	// Need a method in consumables class to get food type
 	//if (food) this->health = 200;
@@ -93,11 +89,11 @@ int Player::GetX()
 {
 	return this->xPos;
 }
-int GetY()
+int Player::GetY()
 {
 	return this->yPos;
 }
-int GetHunger()
+int Player::GetHunger()
 {
 	return this->hunger;
 }

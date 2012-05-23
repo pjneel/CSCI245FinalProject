@@ -16,7 +16,7 @@ class Monster
 public:
    MonsterType GetType() const;   
    void Move(int direction);   
-   void ChangeHealth(int health);   
+   void ChangeHealth(int h);   
    void Combat(Player p);   
    int GetX() const;
    int GetY() const;

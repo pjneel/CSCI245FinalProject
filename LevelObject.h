@@ -3,7 +3,6 @@
 // Assignment: 4
 
 #include <stdio.h>
-#include "Level.h"
 
 #ifndef LEVELOBJECT_H
 #define	LEVELOBJECT_H
