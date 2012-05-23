@@ -56,8 +56,8 @@ lexfile.o: lexfile.h
 readgame.o: lexfile.h
 Level.o: Level.h LevelObject.h Monster.h Room.h
 LevelObject.o: LevelObject.h Player.h
-Monster.o: Monster.h
-Player.o: Player.h
+Monster.o: Monster.h Player.h
+Player.o: Player.h LevelObject.h
 Room.o: Room.h
 
 # For each .h file in your project, make sure that you have
