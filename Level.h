@@ -30,7 +30,7 @@ private:
 	int yStart;
 public:
 	Level();
-	void AddItem(LevelObject* lo, int xPosition, int yPosition);
+	void AddLevelObject(LevelObject* lo, int xPosition, int yPosition);
 	LevelObject* ObjectAt(int xPosition, int yPosition) const;
 	LevelObject* RemoveItem(int xPosition, int yPosition);
    bool IsWalkable(int xPosition, int yPosition) const;

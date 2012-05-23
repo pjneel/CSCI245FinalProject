@@ -44,7 +44,7 @@ static void and_list ( lexfile &f, token what)
   // Starting with the "at ..."
   match (f, t_at);
   get_pair(f, x, y);
-  game.PlaceAt (what, x, y); 
+  game.PlaceAt (what, x, y);
 
   // rest of the list  
   while ((t =f.get_next()) == t_and) {

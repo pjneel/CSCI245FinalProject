@@ -36,13 +36,13 @@ void Game::SetBuildLevel (int newlevel)
 { 
   if (debug) printf ("SetBuildLevel -> %d.\n", newlevel);
   levels[newlevel] = new Level();
-  currentLevel = newlevel;    
+  currentLevel = newlevel;
 }
 
 void Game::NewRoom (int x, int y, int width, int height)
 {
   if (debug) printf ("NewRoom(%d,%d,%d,%d)\n", x, y, width, height);
-  levels[currentLevel]->AddRoom(x, y, width, height);  
+  levels[currentLevel]->AddRoom(x, y, width, height);
 }
 
 void Game::NewPath (int x1, int y1, int x2, int y2)
@@ -55,7 +55,7 @@ void Game::NewPath (int x1, int y1, int x2, int y2)
          for (int j = y1; j <= y2; j++) 
          {
             Tile* t = new Tile(T_PATH);
-            levels[currentLevel]->AddItem(t, x1, j);  
+            levels[currentLevel]->AddLevelObject(t, x1, j);  
          }
       }
       else // y1 >= y2
@@ -63,7 +63,7 @@ void Game::NewPath (int x1, int y1, int x2, int y2)
          for (int j = y2; j <= y1; j++)
          {          
             Tile* t = new Tile(T_PATH);
-            levels[currentLevel]->AddItem(t, x1, j);
+            levels[currentLevel]->AddLevelObject(t, x1, j);
          }    
       }
    }
@@ -74,7 +74,7 @@ void Game::NewPath (int x1, int y1, int x2, int y2)
          for (int i = x1; i <= x2; i++)
          {  
             Tile* t = new Tile(T_PATH);
-            levels[currentLevel]->AddItem(t, i, y1);
+            levels[currentLevel]->AddLevelObject(t, i, y1);
          }
       }
       else // x1 >= x2
@@ -82,7 +82,7 @@ void Game::NewPath (int x1, int y1, int x2, int y2)
          for (int i = x2; i <= x1; i++)
          {
             Tile* t = new Tile(T_PATH);
-            levels[currentLevel]->AddItem(t, i, y1);
+            levels[currentLevel]->AddLevelObject(t, i, y1);
          }
       }
    }
@@ -140,7 +140,7 @@ void Game::start(void)
   play_area->SetSquare(20, 23, PLAYER);
 
   // End of code you need to replace ....
-
+  
 }
 
 void Game::quit(void)
