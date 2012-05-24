@@ -71,6 +71,17 @@ Tile::Tile(TileType t)
    type = t;
 }
 
+TileType Tile::GetType() const
+{
+   return type;
+}
+
+//bool Tile::operator==(TileType t) const
+//{
+//  if (type == t) return true;
+//   return false;
+//}
+ 
 
 
 

@@ -47,7 +47,9 @@ class Tile : public LevelObject
 {
 public:
    bool IsWalkable() const;
-   Tile(TileType t);   
+   Tile(TileType t);
+   TileType GetType() const;
+//   bool operator==(TileType t) const;   
 private:
    TileType type;   
 };

@@ -37,6 +37,7 @@ public:
    bool IsMonsterAt(int xPosition, int yPosition) const;
    void AddRoom(int xPosition, int yPosition, int width, int height);
    void SetStart(int xPosition, int yPosition);
+   bool IsVisible(int xPosition, int yPosition) const;
 };
 
 #endif

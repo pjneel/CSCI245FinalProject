@@ -83,3 +83,10 @@ void Level::SetStart(int xPosition, int yPosition)
    xStart = xPosition;
    yStart = yPosition;
 }
+
+bool Level::IsVisible(int xPosition, int yPosition) const
+{
+   return grid[xPosition][yPosition]->IsVisible();
+}
+
+

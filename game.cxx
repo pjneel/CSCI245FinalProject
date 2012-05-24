@@ -10,11 +10,14 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cstdarg>
+#include <typeinfo>
 using namespace std;
 
 // Utility routine:  called like printf.
 
 const int MAX_LEVELS = 10;
+//const int X_GRID_SIZE = 50;
+//const int Y_GRID_SIZE = 40;
 
 void Game::error(char *fmt, ...)
 {
@@ -41,8 +44,22 @@ void Game::SetBuildLevel (int newlevel)
 
 void Game::NewRoom (int x, int y, int width, int height)
 {
-  if (debug) printf ("NewRoom(%d,%d,%d,%d)\n", x, y, width, height);
-  levels[currentLevel]->AddRoom(x, y, width, height);
+   if (debug) printf ("NewRoom(%d,%d,%d,%d)\n", x, y, width, height);
+   levels[currentLevel]->AddRoom(x, y, width, height);
+   for (int i = x; i <= x + width; i++)
+   {
+      if (levels[currentLevel]->ObjectAt(i, y) == NULL) levels[currentLevel]->AddLevelObject(new Tile(T_WALL), i, y);
+      if (levels[currentLevel]->ObjectAt(i, y + height) == NULL) levels[currentLevel]->AddLevelObject(new Tile(T_WALL), i, y + height);     
+   }
+   for (int j = y + 1; j < y + height; j++)
+   {
+      if (levels[currentLevel]->ObjectAt(x, j) == NULL) levels[currentLevel]->AddLevelObject(new Tile(T_WALL), x, j);
+      if (levels[currentLevel]->ObjectAt(x + width, j) == NULL) levels[currentLevel]->AddLevelObject(new Tile(T_WALL), x + width, j); 
+   }
+   for (int i = x + 1; i < width; i++)
+   {
+      for (int j = y + 1; j < height; j++) if (levels[currentLevel]->ObjectAt(i, j) == NULL) levels[currentLevel]->AddLevelObject(new Tile(T_WHITE), i, j);
+   }   
 }
 
 void Game::NewPath (int x1, int y1, int x2, int y2)
@@ -105,7 +122,7 @@ void Game::PlaceAt (token what, int x, int y)
 
 void Game::start(void)
 {
-  playing = true;
+   playing = true;
 
   // The following shows you how to set some elements of the gui.
   // YOU NEED TO REPLACE THIS WITH YOUR REAL START CODE ...
@@ -115,8 +132,37 @@ void Game::start(void)
   gui_gold->value("0");
 
   gui_message("Welcome to the game!");
+  
+  
+// I was trying to get the display going.
+// I got it to compile but got a segmentation fault.
+ /* for (int x = 0; x < X_GRID_SIZE; x++)
+   {
+      for (int y = 0; y < Y_GRID_SIZE; y++)
+      {
+         if (levels[currentLevel]->IsVisible(x, y)) play_area->SetSquare(x, y, BLACK);
+         else
+         {
+            LevelObject* thing = levels[currentLevel]->ObjectAt(x, y);
+            if (typeid(*thing).name() == "Gold") play_area->SetSquare(x, y, GOLD);
+            else if (typeid(*thing).name() == "Diamond") play_area->SetSquare(x, y, DIAMOND);
+            else if (typeid(*thing).name() == "Tile")
+            {
+               Tile* temp = (Tile*) thing;               
+               if (temp->GetType() == T_WHITE) play_area->SetSquare(x, y, WHITE);
+               else if (temp->GetType() == T_WALL) play_area->SetSquare(x, y, WALL);
+               else if (temp->GetType() == T_PATH) play_area->SetSquare(x, y, PATH);
+               else if (temp->GetType() == T_WALL) play_area->SetSquare(x, y, WALL);
+               else if (temp->GetType() == T_UP) play_area->SetSquare(x, y, GOUP);
+               else if (temp->GetType() == T_DOWN) play_area->SetSquare(x, y, GODOWN);
+            }
+         }
+      }
+   }     
+  */
 
-  int x, y;
+         
+   int x, y;
 
   for (x = 0; x<50; x++) play_area->SetSquare(x,2,WHITE);
   for (x = 0; x<50; x++) play_area->SetSquare(x,4,WALL);
