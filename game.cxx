@@ -37,9 +37,16 @@ void Game::error(char *fmt, ...)
 
 void Game::SetBuildLevel (int newlevel)
 { 
-  if (debug) printf ("SetBuildLevel -> %d.\n", newlevel);
-  levels[newlevel] = new Level();
-  currentLevel = newlevel;
+   if (debug) printf ("SetBuildLevel -> %d.\n", newlevel);
+   levels[newlevel] = new Level();
+   currentLevel = newlevel;
+   for (int x = 0; x < X_GRID_SIZE; x++)
+   {
+      for (int y = 0; y < Y_GRID_SIZE; y++)
+      {
+         levels[currentLevel]->AddLevelObject(new Tile(T_BLACK), x, y);
+      }
+   }  
 }
 
 void Game::NewRoom (int x, int y, int width, int height)
@@ -114,8 +121,21 @@ void Game::SetStart (int x, int y)
 void Game::PlaceAt (token what, int x, int y)
 {
   if (debug) printf ("Place %s at (%d,%d)\n", tok_name[what], x, y);
-  if (debug && what == t_diamond)
-    printf ("Place the diamond at (%d,%d)...\n", x, y);
+  //if (debug && what == t_diamond)
+    //printf ("Place the diamond at (%d,%d)...\n", x, y);
+
+  Level* lvl = levels[currentLevel];
+  if (what == t_diamond) lvl->AddLevelObject(new Diamond(), x, y);
+  else if (what == t_gold) lvl->AddLevelObject(new Gold(), x,  y);
+  else if (what == t_up) lvl->AddLevelObject(new Tile(T_UP), x, y);
+  else if (what == t_down) lvl->AddLevelObject(new Tile(T_DOWN), x, y);
+  //else if (what == t_trap) lvl->AddLevelObject(new Trap(), x, y);
+  //else if (what == t_sickness) lvl->AddLevelObject(new Consumable(C_BAD_DRINK), x, y);
+  //else if (what == t_drink) lvl->AddLevelObject(new Consumable(C_GOOD_DRINK), x, y);
+  //else if (what == t_food) lvl->AddLevelObject(new Consumable(C_FOOD), x, y);
+  // Snake
+  // Rat
+  
 }
 
 // Routines to play the game
@@ -123,7 +143,7 @@ void Game::PlaceAt (token what, int x, int y)
 void Game::start(void)
 {
    playing = true;
-
+   
   // The following shows you how to set some elements of the gui.
   // YOU NEED TO REPLACE THIS WITH YOUR REAL START CODE ...
 
@@ -136,32 +156,41 @@ void Game::start(void)
   
 // I was trying to get the display going.
 // I got it to compile but got a segmentation fault.
- /* for (int x = 0; x < X_GRID_SIZE; x++)
+   for (int x = 0; x < X_GRID_SIZE; x++)
    {
       for (int y = 0; y < Y_GRID_SIZE; y++)
       {
-         if (levels[currentLevel]->IsVisible(x, y)) play_area->SetSquare(x, y, BLACK);
-         else
-         {
+         //if (levels[currentLevel]->IsVisible(x, y)) play_area->SetSquare(x, y, BLACK);
+         //else
+         //{
             LevelObject* thing = levels[currentLevel]->ObjectAt(x, y);
+            gui_message(typeid(*thing).name());
+            if (debug) printf ("%s", typeid(*thing).name());
             if (typeid(*thing).name() == "Gold") play_area->SetSquare(x, y, GOLD);
             else if (typeid(*thing).name() == "Diamond") play_area->SetSquare(x, y, DIAMOND);
             else if (typeid(*thing).name() == "Tile")
             {
+               gui_message("Found a tile"); 
                Tile* temp = (Tile*) thing;               
                if (temp->GetType() == T_WHITE) play_area->SetSquare(x, y, WHITE);
-               else if (temp->GetType() == T_WALL) play_area->SetSquare(x, y, WALL);
+               else if (temp->GetType() == T_WALL) 
+               {
+                  play_area->SetSquare(x, y, WALL);
+                  gui_message("Found a wall");
+               }
+               
                else if (temp->GetType() == T_PATH) play_area->SetSquare(x, y, PATH);
                else if (temp->GetType() == T_WALL) play_area->SetSquare(x, y, WALL);
                else if (temp->GetType() == T_UP) play_area->SetSquare(x, y, GOUP);
                else if (temp->GetType() == T_DOWN) play_area->SetSquare(x, y, GODOWN);
             }
-         }
+         //}
       }
-   }     
-  */
+   }    
+   gui_message("Did the loop"); 
+ 
 
-         
+/*         
    int x, y;
 
   for (x = 0; x<50; x++) play_area->SetSquare(x,2,WHITE);
@@ -186,7 +215,7 @@ void Game::start(void)
   play_area->SetSquare(20, 23, PLAYER);
 
   // End of code you need to replace ....
-  
+*/  
 }
 
 void Game::quit(void)
