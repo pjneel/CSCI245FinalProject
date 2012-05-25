@@ -6,6 +6,7 @@
 #include "Level.h"
 #include "LevelObject.h"
 
+
 #include <FL/fl_ask.H>
 #include <cstdio>
 #include <cstdlib>
@@ -18,6 +19,11 @@ using namespace std;
 const int MAX_LEVELS = 10;
 //const int X_GRID_SIZE = 50;
 //const int Y_GRID_SIZE = 40;
+
+bool ObjectEquals(LevelObject* lo, char* c)
+   {
+      return (strcmp(typeid(*lo).name(), c) == 0);
+   }  
 
 void Game::error(char *fmt, ...)
 {
@@ -39,14 +45,17 @@ void Game::SetBuildLevel (int newlevel)
 { 
    if (debug) printf ("SetBuildLevel -> %d.\n", newlevel);
    levels[newlevel] = new Level();
-   currentLevel = newlevel;
+   currentLevel = newlevel;   
    for (int x = 0; x < X_GRID_SIZE; x++)
    {
       for (int y = 0; y < Y_GRID_SIZE; y++)
       {
          levels[currentLevel]->AddLevelObject(new Tile(T_BLACK), x, y);
-      }
+      }    
    }  
+   levels[currentLevel]->AddLevelObject(new Trap(), 49, 38);      
+   levels[currentLevel]->AddLevelObject(new Gold(), 49, 39);  
+   
 }
 
 void Game::NewRoom (int x, int y, int width, int height)
@@ -142,6 +151,7 @@ void Game::PlaceAt (token what, int x, int y)
 
 void Game::start(void)
 {
+
    playing = true;
    
   // The following shows you how to set some elements of the gui.
@@ -164,27 +174,37 @@ void Game::start(void)
          //else
          //{
             LevelObject* thing = levels[currentLevel]->ObjectAt(x, y);
-            gui_message(typeid(*thing).name());
-            if (debug) printf ("%s", typeid(*thing).name());
-            if (typeid(*thing).name() == "Gold") play_area->SetSquare(x, y, GOLD);
-            else if (typeid(*thing).name() == "Diamond") play_area->SetSquare(x, y, DIAMOND);
-            else if (typeid(*thing).name() == "Tile")
+            //gui_message(strcmp(typeid(*thing).name(), "4Tile"));
+            if (debug) printf ("x=%d, y=%d, type=%s, comp=%d, \n", x, y, typeid(*thing).name(), strcmp(typeid(*thing).name(), "4Tile"));
+            
+            if (ObjectEquals(thing, "4Gold")) play_area->SetSquare(x, y, GOLD);
+            else if (ObjectEquals(thing, "4Diamond")) play_area->SetSquare(x, y, DIAMOND);       
+            else if (ObjectEquals(thing, "4Consumable"))
+            {            
+               // Consumable code needed
+               //play_area->SetSquare(x, y, DRINK);
+            }
+            else if (ObjectEquals(thing, "4Trap"))
+            {
+               // Trap code needed
+            }
+            
+            
+            else if (ObjectEquals(thing, "4Tile"))
+            {
+
             {
                gui_message("Found a tile"); 
                Tile* temp = (Tile*) thing;               
                if (temp->GetType() == T_WHITE) play_area->SetSquare(x, y, WHITE);
-               else if (temp->GetType() == T_WALL) 
-               {
-                  play_area->SetSquare(x, y, WALL);
-                  gui_message("Found a wall");
-               }
-               
+               else if (temp->GetType() == T_WALL) play_area->SetSquare(x, y, WALL);             
                else if (temp->GetType() == T_PATH) play_area->SetSquare(x, y, PATH);
                else if (temp->GetType() == T_WALL) play_area->SetSquare(x, y, WALL);
                else if (temp->GetType() == T_UP) play_area->SetSquare(x, y, GOUP);
                else if (temp->GetType() == T_DOWN) play_area->SetSquare(x, y, GODOWN);
+               else if (temp->GetType() == T_BLACK) play_area->SetSquare(x, y, BLACK);
             }
-         //}
+         }
       }
    }    
    gui_message("Did the loop"); 
@@ -275,6 +295,7 @@ Game::Game()
    }
    currentLevel = -1;
 }
+
 
 
 
