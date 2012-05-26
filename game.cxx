@@ -22,6 +22,7 @@ const int MAX_LEVELS = 10;
 
 bool ObjectEquals(LevelObject* lo, char* c)
    {
+      
       return (strcmp(typeid(*lo).name(), c) == 0);
    }  
 
@@ -45,27 +46,38 @@ void Game::SetBuildLevel (int newlevel)
 { 
    if (debug) printf ("SetBuildLevel -> %d.\n", newlevel);
    levels[newlevel] = new Level();
-   currentLevel = newlevel;   
+   currentLevel = newlevel;
+   Tile* black = new Tile(T_BLACK);   
    for (int x = 0; x < X_GRID_SIZE; x++)
    {
       for (int y = 0; y < Y_GRID_SIZE; y++)
       {
-         levels[currentLevel]->AddLevelObject(new Tile(T_BLACK), x, y);
+         levels[currentLevel]->AddLevelObject(black, x, y);
       }    
    }  
-   levels[currentLevel]->AddLevelObject(new Trap(), 49, 38);      
-   levels[currentLevel]->AddLevelObject(new Gold(), 49, 39);  
-   
+   //levels[currentLevel]->AddLevelObject(new Trap(ARROW), 49, 38);      
+   //levels[currentLevel]->AddLevelObject(new Gold(), 49, 39);   
 }
 
+
+// NewRoom needs to check against T_BLACK tiles rather than NULL since we are setting everything to T_BLACK at the beginning
 void Game::NewRoom (int x, int y, int width, int height)
 {
    if (debug) printf ("NewRoom(%d,%d,%d,%d)\n", x, y, width, height);
    levels[currentLevel]->AddRoom(x, y, width, height);
+   //Tile* wall = new Tile(T_WALL);
    for (int i = x; i <= x + width; i++)
    {
-      if (levels[currentLevel]->ObjectAt(i, y) == NULL) levels[currentLevel]->AddLevelObject(new Tile(T_WALL), i, y);
-      if (levels[currentLevel]->ObjectAt(i, y + height) == NULL) levels[currentLevel]->AddLevelObject(new Tile(T_WALL), i, y + height);     
+      /*if (ObjectEquals(levels[currentLevel]->ObjectAt(i, y), "Tile"))
+      {
+         Tile* temp = (Tile*) levels[currentLevel]->ObjectAt(i, y); 
+         if (temp->GetType() == T_BLACK) levels[currentLevel]->AddLevelObject(wall, i, y);
+      }
+      if (ObjectEquals(levels[currentLevel]->ObjectAt(i, y + height), "Tile"))
+      {
+         Tile* temp = (Tile*) levels[currentLevel]->ObjectAt(i, y + height); 
+         if (temp->GetType() == T_BLACK) levels[currentLevel]->AddLevelObject(wall, i, y + height);
+      } */ 
    }
    for (int j = y + 1; j < y + height; j++)
    {
@@ -138,10 +150,11 @@ void Game::PlaceAt (token what, int x, int y)
   else if (what == t_gold) lvl->AddLevelObject(new Gold(), x,  y);
   else if (what == t_up) lvl->AddLevelObject(new Tile(T_UP), x, y);
   else if (what == t_down) lvl->AddLevelObject(new Tile(T_DOWN), x, y);
-  //else if (what == t_trap) lvl->AddLevelObject(new Trap(), x, y);
-  //else if (what == t_sickness) lvl->AddLevelObject(new Consumable(C_BAD_DRINK), x, y);
-  //else if (what == t_drink) lvl->AddLevelObject(new Consumable(C_GOOD_DRINK), x, y);
-  //else if (what == t_food) lvl->AddLevelObject(new Consumable(C_FOOD), x, y);
+  else if (what == t_arrow) lvl->AddLevelObject(new Trap(ARROW), x, y);  // Need to find out what type of trap is needed - ARROW for now
+  else if (what == t_transport) lvl->AddLevelObject(new Trap(TRANSPORT), x, y);
+  else if (what == t_sickness) lvl->AddLevelObject(new Consumable(C_BAD_DRINK), x, y);
+  else if (what == t_health) lvl->AddLevelObject(new Consumable(C_GOOD_DRINK), x, y);
+  else if (what == t_food) lvl->AddLevelObject(new Consumable(C_FOOD), x, y);
   // Snake
   // Rat
   
@@ -180,19 +193,18 @@ void Game::start(void)
             if (ObjectEquals(thing, "4Gold")) play_area->SetSquare(x, y, GOLD);
             else if (ObjectEquals(thing, "4Diamond")) play_area->SetSquare(x, y, DIAMOND);       
             else if (ObjectEquals(thing, "4Consumable"))
-            {            
-               // Consumable code needed
-               //play_area->SetSquare(x, y, DRINK);
+            {
+               Consumable* c = (Consumable*) thing;
+               if (c->GetType() == C_FOOD) play_area->SetSquare(x, y, FOOD);
+               else if (c->GetType() == C_GOOD_DRINK || c->GetType() == C_BAD_DRINK) play_area->SetSquare(x, y, DRINK);
             }
             else if (ObjectEquals(thing, "4Trap"))
             {
-               // Trap code needed
-            }
-            
-            
+               Trap* t = (Trap*) thing;
+               if (t->GetType() == ARROW) play_area->SetSquare(x, y, ATRAP);
+               else if (t->GetType() == TRANSPORT) play_area->SetSquare(x, y, TTRAP);
+            }             
             else if (ObjectEquals(thing, "4Tile"))
-            {
-
             {
                gui_message("Found a tile"); 
                Tile* temp = (Tile*) thing;               
@@ -203,8 +215,7 @@ void Game::start(void)
                else if (temp->GetType() == T_UP) play_area->SetSquare(x, y, GOUP);
                else if (temp->GetType() == T_DOWN) play_area->SetSquare(x, y, GODOWN);
                else if (temp->GetType() == T_BLACK) play_area->SetSquare(x, y, BLACK);
-            }
-         }
+            }         
       }
    }    
    gui_message("Did the loop"); 

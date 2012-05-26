@@ -12,7 +12,7 @@ class Room;
 
 enum TrapType {ARROW, TRANSPORT};
 enum TileType {T_WALL, T_PATH, T_WHITE, T_BLACK, T_UP, T_DOWN};
-enum ConsumablesType {C_FOOD, C_GOOD_DRINK, C_BAD_DRINK};
+enum ConsumableType {C_FOOD, C_GOOD_DRINK, C_BAD_DRINK};
 
 class LevelObject 
 {
@@ -37,7 +37,9 @@ public:
 class Trap : public LevelObject
 {
 public:
-   void Activate(Player p);   
+   Trap(TrapType t);
+   void Activate(Player p); 
+   TrapType GetType();  
 private:
    TrapType type;  
 };
@@ -65,8 +67,11 @@ class Diamond : public Item
 
 class Consumable : public Item
 {
+public:
+   Consumable(ConsumableType t);
+   ConsumableType GetType() const;
 private:
-   ConsumablesType type;   
+   ConsumableType type;   
 };
    
    

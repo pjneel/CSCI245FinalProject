@@ -60,6 +60,16 @@ void Trap::Activate(Player p)
    }      
 }
 
+Trap::Trap(TrapType t)
+{
+   type = t;
+}
+
+TrapType Trap::GetType()
+{
+   return type;
+}
+
 bool Tile::IsWalkable() const
 {
    if (type == T_WALL or type == T_BLACK) return false;
@@ -76,12 +86,15 @@ TileType Tile::GetType() const
    return type;
 }
 
-//bool Tile::operator==(TileType t) const
-//{
-//  if (type == t) return true;
-//   return false;
-//}
+Consumable::Consumable(ConsumableType t)
+{
+   type = t;
+}
  
+ConsumableType Consumable::GetType() const
+{
+   return type;
+}
 
 
 
