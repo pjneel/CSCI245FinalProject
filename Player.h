@@ -6,7 +6,7 @@
 #define PLAYER_H
 
 #include "LevelObject.h"
-#include "game.h"
+#include "game.h" // for direction enumeration
 
 //class LevelObject;
 class Monster;

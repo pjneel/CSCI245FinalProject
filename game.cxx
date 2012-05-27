@@ -42,6 +42,30 @@ void TokenSet(int x, int y, token tok)
    else if (tok == t_black) play_area->SetSquare(x, y, BLACK);      
 }
 
+void Game::DrawFresh()
+{
+   token tok;
+   for (int x = 0; x < X_GRID_SIZE; x++)
+   {
+      for (int y = 0; y < Y_GRID_SIZE; y++)
+      {
+         //if (levels[currentLevel]->IsVisible(x, y)) play_area->SetSquare(x, y, BLACK);
+         //else
+         //{
+            LevelObject* thing = levels[currentLevel]->ObjectAt(x, y);
+            
+            tok = thing->GetType();
+            TokenSet(x, y, tok);   
+      }
+   }
+   
+   // Player position
+   int xS, yS;
+   levels[currentLevel]->GetStart(xS, yS);
+   player->SetPosition(xS, yS);
+   play_area ->SetSquare(xS, yS, PLAYER);   
+}
+
 void Game::error(char *fmt, ...)
 {
   va_list ap;
@@ -71,12 +95,8 @@ void Game::SetBuildLevel (int newlevel)
          levels[currentLevel]->AddLevelObject(black, x, y);
       }    
    }  
-   //levels[currentLevel]->AddLevelObject(new Trap(t_arrow), 49, 38);      
-   //levels[currentLevel]->AddLevelObject(new Gold(), 49, 39);   
 }
 
-
-// NewRoom needs to check against t_black tiles rather than NULL since we are setting everything to t_black at the beginning
 void Game::NewRoom (int x, int y, int width, int height)
 {
    if (debug) printf ("NewRoom(%d,%d,%d,%d)\n", x, y, width, height);   
@@ -175,9 +195,8 @@ void Game::PlaceAt (token what, int x, int y)
    else if (what == t_sickness) lvl->AddLevelObject(new Consumable(t_sickness), x, y);
    else if (what == t_health) lvl->AddLevelObject(new Consumable(t_health), x, y);
    else if (what == t_food) lvl->AddLevelObject(new Consumable(t_food), x, y);
-   // Snake
-   // Rat
-  
+   else if (what == t_snake) lvl->AddMonsterAt(x, y, M_SNAKE);
+   else if (what == t_rat) lvl->AddMonsterAt(x, y, M_RAT); 
 }
 
 // Routines to play the game
@@ -207,20 +226,7 @@ void Game::start(void)
             LevelObject* thing = levels[currentLevel]->ObjectAt(x, y);
             
             tok = thing->GetType();
-            TokenSet(x, y, tok);
-            /*if (tok == t_gold) play_area->SetSquare(x, y, GOLD);
-            else if (tok == t_diamond) play_area->SetSquare(x, y, DIAMOND);
-            else if (tok == t_food) play_area->SetSquare(x, y, FOOD);
-            else if (tok == t_health || tok == t_sickness) play_area->SetSquare(x, y, DRINK);
-	         else if (tok == t_arrow) play_area->SetSquare(x, y, ATRAP);
-            else if (tok == t_transport) play_area->SetSquare(x, y, TTRAP);
-            else if (tok == t_white) play_area->SetSquare(x, y, WHITE);
-            else if (tok == t_wall) play_area->SetSquare(x, y, WALL);             
-            else if (tok == t_path) play_area->SetSquare(x, y, PATH);
-            else if (tok == t_wall) play_area->SetSquare(x, y, WALL);
-            else if (tok == t_up) play_area->SetSquare(x, y, GOUP);
-            else if (tok == t_down) play_area->SetSquare(x, y, GODOWN);
-            else if (tok == t_black) play_area->SetSquare(x, y, BLACK); */     
+            TokenSet(x, y, tok);   
       }
    }
    
@@ -229,7 +235,13 @@ void Game::start(void)
    levels[currentLevel]->GetStart(xS, yS);
    player->SetPosition(xS, yS);
    play_area ->SetSquare(xS, yS, PLAYER);
-   //play_area->SetSquare(47,37, FOOD);
+   
+   for (int a = 0; a < levels[currentLevel]->NumberMonsters(); a++)
+   {
+      Monster* m = levels[currentLevel]->GetMonster(a);
+      if (m->GetType() == M_SNAKE) play_area->SetSquare(m->GetX(), m->GetY(), SNAKE);
+      else if (m->GetType() == M_RAT) play_area->SetSquare(m->GetX(), m->GetY(), RAT);      
+   }
    
    //for(int x = 0; x < 50; x++)
    //{
@@ -306,16 +318,66 @@ void Game::drink(void)
 
 void Game::move (direction dir)
 {
-  CHECK_PLAYING;
-  if (debug)
-    printf ("Move %d\n", dir);
-  gui_message("move -> %d", dir);
-  int x = player->GetX();
-  int y = player->GetY();
-  token tok = levels[currentLevel]->ObjectAt(x, y)->GetType();
-  TokenSet(x, y, tok);
-  player->Move(dir);
-  play_area->SetSquare(player->GetX(), player->GetY(), PLAYER);
+   CHECK_PLAYING;
+   if (debug)
+      printf ("Move %d\n", dir);
+   gui_message("move -> %d", dir);
+  
+   int xNew = player->GetX();
+   int yNew = player->GetY();
+   if (dir == NORTH) 
+   {
+      yNew--;
+      if (yNew < 0) return;
+   }
+   else if (dir == SOUTH) 
+   {
+      yNew++;
+      if (yNew >= Y_GRID_SIZE) return;
+   }
+   else if (dir == WEST) 
+   {
+      xNew--;
+      if (xNew < 0) return;
+   }
+   else if (dir == EAST) 
+   {
+      xNew++;
+      if (xNew >= X_GRID_SIZE) return;
+   }
+   else 
+   {
+      token t = levels[currentLevel]->ObjectAt(xNew, yNew)->GetType();
+      if (dir == UP && t == t_up && currentLevel > 0)
+      {
+         currentLevel--;
+         int xStart, yStart;
+         levels[currentLevel]->GetStart(xStart, yStart);
+         player->SetPosition(xStart, yStart);
+         Game::DrawFresh();
+         return;
+      }
+      else if (dir == DOWN && t == t_down && currentLevel < MAX_LEVELS)
+      {
+         currentLevel++;
+         int xStart, yStart;
+         levels[currentLevel]->GetStart(xStart, yStart);
+         player->SetPosition(xStart, yStart);
+         Game::DrawFresh();
+         return;
+      }      
+   }  
+      
+   token temp = levels[currentLevel]->ObjectAt(xNew, yNew)->GetType();
+   if (temp == t_black || temp == t_wall) return;   
+  
+   int x = player->GetX();
+   int y = player->GetY();
+   token tok = levels[currentLevel]->ObjectAt(x, y)->GetType();
+   TokenSet(x, y, tok);
+   player->Move(dir);
+   play_area->SetSquare(player->GetX(), player->GetY(), PLAYER);
+   levels[currentLevel]->MoveMonsters(player);
 }
 
 Game::Game()

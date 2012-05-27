@@ -54,9 +54,9 @@ game.o: game.h gui.fl PlayArea.h Level.h LevelObject.h Player.h
 PlayArea.o: xpms/*.xpm
 lexfile.o: lexfile.h
 readgame.o: lexfile.h
-Level.o: Level.h LevelObject.h Monster.h Room.h
+Level.o: Level.h LevelObject.h Monster.h Room.h Player.h
 LevelObject.o: LevelObject.h Player.h
-Monster.o: Monster.h Player.h
+Monster.o: Monster.h Player.h game.h
 Player.o: Player.h LevelObject.h game.h
 Room.o: Room.h
 

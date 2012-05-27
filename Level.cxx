@@ -3,12 +3,14 @@
 // Assignment: 4
 
 #include "Level.h"
-
 #include "LevelObject.h"
 #include "Monster.h"
 #include "Room.h"
+#include "Player.h"
 
-#include <typeinfo>
+//#include <typeinfo>
+#include <time.h> // for seeding randomization
+#include <cstdlib> // for random numbers??
 
 using namespace std;
 
@@ -45,14 +47,9 @@ LevelObject* Level::RemoveItem(int xPosition, int yPosition)
 
 bool Level::IsWalkable(int xPosition, int yPosition) const
 {
-   LevelObject* temp = grid[xPosition][yPosition];
-   bool tileWalkable = false;
-   if (typeid(*temp).name() == "Tile")
-   {
-      //Tile* t = dynamic_cast<Tile*>(temp);
-      tileWalkable = grid[xPosition][yPosition]->IsWalkable();
-   }
-   else tileWalkable = true;
+   token t = grid[xPosition][yPosition]->GetType();
+   bool tileWalkable = true;
+   if (t != t_wall && t != t_black) tileWalkable = false;
 
    return tileWalkable && IsMonsterAt(xPosition, yPosition);   
 }
@@ -90,5 +87,79 @@ bool Level::IsVisible(int xPosition, int yPosition) const
 {
    return grid[xPosition][yPosition]->IsVisible();
 }
+
+void Level::AddMonsterAt(int xPosition, int yPosition, MonsterType t)
+{
+   monsters.push_back(new Monster(xPosition, yPosition, t));
+}
+
+Monster* Level::GetMonster(int number)
+{
+   return monsters[number];
+}
+
+int Level::NumberMonsters() const
+{
+   return monsters.size();
+}
+
+void Level::MoveMonsters(Player* p)
+{
+   srand(time(NULL)); // initialize random seed  
+   for (int a = 0; a < monsters.size(); a++)
+   {  
+      int x = monsters[a]->GetX();
+      int y = monsters[a]->GetY();
+      if (p->GetRoom() == monsters[a]->GetRoom()) // Check if monster is in the same room as the player
+      {          
+         int move = (rand() % 12) + 1;
+         if (move == 1) 
+         {
+            monsters[a]->Move(NORTH);
+         }
+         else if (move == 2) 
+         {
+            monsters[a]->Move(EAST);
+         }
+         else if (move ==3) 
+         {
+            monsters[a]->Move(SOUTH);
+         }
+         else if (move == 4) 
+         {
+            monsters[a]->Move(WEST);
+         }
+         else if (move >= 7 && move <= 12)
+         {
+            // Move toward the player code
+         }         
+      }
+      else // Monster not in the same room
+      {
+         int move = (rand() % 6) + 1;
+         if (move == 1) 
+         {
+            monsters[a]->Move(NORTH);
+         }
+         else if (move == 2) 
+         {
+            monsters[a]->Move(EAST);
+         }
+         else if (move ==3) 
+         {
+            monsters[a]->Move(SOUTH);
+         }
+         else if (move == 4) 
+         {
+            monsters[a]->Move(WEST);
+         }
+         
+      }
+   }
+}
+
+
+
+
 
 

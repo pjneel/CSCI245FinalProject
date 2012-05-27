@@ -29,17 +29,19 @@ class Game {
   void NewPath (int row1, int col1, int row2, int col2);  
   void SetStart (int row, int col);
   void PlaceAt (token what, int row, int col);
+  
 
   // routines to play the game
 
-  void start(void);
-  void quit(void);
-  void inventory(void);
-  void drop(void);
-  void eat(void);
-  void drink(void);
-  void move (direction dir);
-
+   void start(void);
+   void quit(void);
+   void inventory(void);
+   void drop(void);
+   void eat(void);
+   void drink(void);
+   void move (direction dir);
+   void DrawFresh();
+   
   // Other utility routines ..
 
   void error (char *fmt, ...);  

@@ -2,7 +2,7 @@
 // Class: CSCI 245
 // Assignment: 4
 
-
+#include "Monster.h"
 
 using namespace std;
 
@@ -17,8 +17,8 @@ const int X_GRID_SIZE = 50;
 const int Y_GRID_SIZE = 40;
 
 class LevelObject;
-class Monster;
 class Room;
+class Player;
 
 class Level
 {
@@ -35,10 +35,14 @@ public:
 	LevelObject* RemoveItem(int xPosition, int yPosition);
    bool IsWalkable(int xPosition, int yPosition) const;
    bool IsMonsterAt(int xPosition, int yPosition) const;
+   void AddMonsterAt(int xPosition, int yPosition, MonsterType t);
+   Monster* GetMonster(int number);
    void AddRoom(int xPosition, int yPosition, int width, int height);
    void SetStart(int xPosition, int yPosition);
    void GetStart(int &xPosition, int &yPosition);
    bool IsVisible(int xPosition, int yPosition) const;
+   int NumberMonsters() const;
+   void MoveMonsters(Player* p);
 };
 
 #endif

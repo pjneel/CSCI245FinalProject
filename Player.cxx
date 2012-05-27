@@ -31,15 +31,12 @@ Player::Player(int xPos, int yPos)
 
 void Player::Move(direction d)
 {
-	// Level::ObjectAt will need to be called first to verify the move is valid
 	if(d == NORTH) this->yPos -= 1;
 	else if (d == SOUTH) this->yPos += 1;
 	else if (d == WEST) this->xPos -= 1;
 	else if (d == EAST) this->xPos += 1;
-	
-	// Need else statement here for invalid direction
-	// Possibly change function from void to boolean and return false if error
 }
+
 void Player::SetPosition(int x, int y)
 {
 	this->xPos = x;
