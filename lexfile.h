@@ -10,7 +10,7 @@
 using namespace std;
 
 enum token {t_number, t_comma, t_semicolon, t_and, t_from, t_at, t_to, t_of,
-	    t_level, t_room, t_path, t_trap, t_up, t_down, t_start,
+	    t_level, t_room, t_path, t_trap, t_up, t_down, t_start, t_wall, t_black, t_white,
 	    t_diamond, t_gold, 
 	    t_rat, t_snake,
 	    t_food, t_drink,

@@ -64,6 +64,7 @@ void Game::SetBuildLevel (int newlevel)
 void Game::NewRoom (int x, int y, int width, int height)
 {
    if (debug) printf ("NewRoom(%d,%d,%d,%d)\n", x, y, width, height);
+      
    levels[currentLevel]->AddRoom(x, y, width, height);
    //Tile* wall = new Tile(T_WALL);
    for (int i = x; i <= x + width; i++)

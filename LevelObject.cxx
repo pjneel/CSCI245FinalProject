@@ -13,10 +13,11 @@ const int Y_GRID_SIZE = 40;
 
 using namespace std;
 
-LevelObject::LevelObject()
+LevelObject::LevelObject(token t)
 {
    visible = false;
    room = NULL;
+   type = t;
 }
 
 bool LevelObject::IsVisible() const
@@ -33,6 +34,18 @@ void LevelObject::SetVisible()
 {
    visible = true;
 }
+
+token LevelObject::GetType() const
+{
+   return type;
+}
+
+bool LevelObject::IsWalkable() const
+{
+   if (type == t_wall or type == t_black) return false;
+   else return true;
+}
+
 
 void Trap::Activate(Player p)
 {
@@ -60,41 +73,42 @@ void Trap::Activate(Player p)
    }      
 }
 
-Trap::Trap(TrapType t)
+Trap::Trap(token t)
 {
-   type = t;
+   LevelObject(t);
 }
 
-TrapType Trap::GetType()
+/*TrapType Trap::GetType()
 {
    return type;
 }
 
 bool Tile::IsWalkable() const
 {
-   if (type == T_WALL or type == T_BLACK) return false;
+   if (type == t_wall or type == t_black) return false;
    else return true;
 }
+*/
 
 Tile::Tile(TileType t) 
 {
-   type = t;
+   LevelObject(t);
 }
 
-TileType Tile::GetType() const
+/*TileType Tile::GetType() const
 {
    return type;
-}
+}*/
 
 Consumable::Consumable(ConsumableType t)
 {
-   type = t;
+   LevelObject(t);
 }
  
-ConsumableType Consumable::GetType() const
+/*ConsumableType Consumable::GetType() const
 {
    return type;
-}
+}*/
 
 
 
