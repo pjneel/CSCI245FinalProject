@@ -25,11 +25,6 @@ bool LevelObject::IsVisible() const
    return visible;
 }
 
-bool LevelObject::IsWalkable() const
-{
-   return true;
-}
-
 void LevelObject::SetVisible()
 {
    visible = true;
@@ -46,14 +41,18 @@ bool LevelObject::IsWalkable() const
    else return true;
 }
 
+Item::Item(token t) : LevelObject(t)
+{
+
+}
 
 void Trap::Activate(Player p)
 {
-   if (type == ARROW)
+   if (this->GetType() == t_arrow)
    {
       p.ChangeHealth(-1);
    }
-   else if (type == TRANSPORT)
+   else if (this->GetType() == t_transport)
    {
       srand(time(NULL)); // initialize random seed   
       int xNew = rand() % X_GRID_SIZE;
@@ -73,9 +72,9 @@ void Trap::Activate(Player p)
    }      
 }
 
-Trap::Trap(token t)
+Trap::Trap(token t) : LevelObject(t)
 {
-   LevelObject(t);
+   //LevelObject(t);
 }
 
 /*TrapType Trap::GetType()
@@ -90,9 +89,9 @@ bool Tile::IsWalkable() const
 }
 */
 
-Tile::Tile(TileType t) 
+Tile::Tile(token t) : LevelObject(t)
 {
-   LevelObject(t);
+   //LevelObject(t);
 }
 
 /*TileType Tile::GetType() const
@@ -100,15 +99,17 @@ Tile::Tile(TileType t)
    return type;
 }*/
 
-Consumable::Consumable(ConsumableType t)
+Consumable::Consumable(token t) : Item(t)
 {
-   LevelObject(t);
+   //LevelObject(t);
 }
  
 /*ConsumableType Consumable::GetType() const
 {
    return type;
 }*/
+Gold::Gold() : LevelObject(t_gold) {}
+Diamond::Diamond() : Item(t_diamond) {}
 
 
 

@@ -9,13 +9,38 @@
 
 using namespace std;
 
-enum token {t_number, t_comma, t_semicolon, t_and, t_from, t_at, t_to, t_of,
-	    t_level, t_room, t_path, t_trap, t_up, t_down, t_start, t_wall, t_black, t_white,
-	    t_diamond, t_gold, 
-	    t_rat, t_snake,
-	    t_food, t_drink,
-	    t_arrow, t_transport, t_sickness, t_health,
-	    t_eof, t_error};
+enum token {
+   t_number, 
+   t_comma, 
+   t_semicolon, 
+   t_and, 
+   t_from, 
+   t_at, 
+   t_to, 
+   t_of,
+   t_level, 
+   t_room, 
+   t_path, // 10
+   t_trap, 
+   t_up, 
+   t_down, 
+   t_start, 
+   t_wall, // 15
+   t_black, 
+   t_white,
+   t_diamond, // 18
+   t_gold, 
+   t_rat, 
+   t_snake,
+   t_food, 
+   t_drink,
+   t_arrow, 
+   t_transport, 
+   t_sickness, 
+   t_health,
+   t_eof, 
+   t_error
+};
 
 extern const char *tok_name[t_error+1];
 

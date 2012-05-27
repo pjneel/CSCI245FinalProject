@@ -27,6 +27,7 @@ Level::Level()
 
 void Level::AddLevelObject(LevelObject* lo, int xPosition, int yPosition)
 {
+   //if (grid[xPosition][yPosition] == NULL || grid[xPosition][yPosition]->GetType() == t_black) grid[xPosition][yPosition] = lo;
    grid[xPosition][yPosition] = lo;
 }
 
@@ -72,10 +73,6 @@ void Level::AddRoom(int xPosition, int yPosition, int width, int height)
 {   
    Room* temp = new Room(xPosition, yPosition, width, height);
    rooms.push_back(temp);
-   for(int i = yPosition; i <= height; i++)
-   {
-	for(int j = xPosition; j <= width; j++) this->AddLevelObject(new Tile(T_WALL), j, i);
-   }
 }
 
 void Level::SetStart(int xPosition, int yPosition)

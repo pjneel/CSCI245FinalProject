@@ -20,11 +20,10 @@ const int MAX_LEVELS = 10;
 //const int X_GRID_SIZE = 50;
 //const int Y_GRID_SIZE = 40;
 
-bool ObjectEquals(LevelObject* lo, char* c)
-   {
-      
-      return (strcmp(typeid(*lo).name(), c) == 0);
-   }  
+/*bool ObjectEquals(LevelObject* lo, char* c)
+{
+   return (strcmp(typeid(*lo).name(), c) == 0);
+}*/  
 
 void Game::error(char *fmt, ...)
 {
@@ -47,7 +46,7 @@ void Game::SetBuildLevel (int newlevel)
    if (debug) printf ("SetBuildLevel -> %d.\n", newlevel);
    levels[newlevel] = new Level();
    currentLevel = newlevel;
-   Tile* black = new Tile(T_BLACK);   
+   Tile* black = new Tile(t_black);   
    for (int x = 0; x < X_GRID_SIZE; x++)
    {
       for (int y = 0; y < Y_GRID_SIZE; y++)
@@ -55,52 +54,52 @@ void Game::SetBuildLevel (int newlevel)
          levels[currentLevel]->AddLevelObject(black, x, y);
       }    
    }  
-   //levels[currentLevel]->AddLevelObject(new Trap(ARROW), 49, 38);      
+   //levels[currentLevel]->AddLevelObject(new Trap(t_arrow), 49, 38);      
    //levels[currentLevel]->AddLevelObject(new Gold(), 49, 39);   
 }
 
 
-// NewRoom needs to check against T_BLACK tiles rather than NULL since we are setting everything to T_BLACK at the beginning
+// NewRoom needs to check against t_black tiles rather than NULL since we are setting everything to t_black at the beginning
 void Game::NewRoom (int x, int y, int width, int height)
 {
-   if (debug) printf ("NewRoom(%d,%d,%d,%d)\n", x, y, width, height);
-      
+   if (debug) printf ("NewRoom(%d,%d,%d,%d)\n", x, y, width, height);   
    levels[currentLevel]->AddRoom(x, y, width, height);
-   //Tile* wall = new Tile(T_WALL);
-   for (int i = x; i <= x + width; i++)
+   if (debug) printf ("Room placed!");
+   Tile* wall = new Tile(t_wall);
+   
+
+   // Top and Bottom Walls 
+   for (int i = x; i < x + width; i++)
    {
-      /*if (ObjectEquals(levels[currentLevel]->ObjectAt(i, y), "Tile"))
-      {
-         Tile* temp = (Tile*) levels[currentLevel]->ObjectAt(i, y); 
-         if (temp->GetType() == T_BLACK) levels[currentLevel]->AddLevelObject(wall, i, y);
-      }
-      if (ObjectEquals(levels[currentLevel]->ObjectAt(i, y + height), "Tile"))
-      {
-         Tile* temp = (Tile*) levels[currentLevel]->ObjectAt(i, y + height); 
-         if (temp->GetType() == T_BLACK) levels[currentLevel]->AddLevelObject(wall, i, y + height);
-      } */ 
+      if (levels[currentLevel]->ObjectAt(i,y)->GetType() == t_black) levels[currentLevel]->AddLevelObject(wall, i, y);
+      //if (debug) printf ("Placing wall at x:%d y: %d\n", i, y + height - 1);
+      if (levels[currentLevel]->ObjectAt(i,y + height - 1)->GetType() == t_black) levels[currentLevel]->AddLevelObject(wall, i, y + height - 1);
    }
+   // Left and Right Walls
    for (int j = y + 1; j < y + height; j++)
    {
-      if (levels[currentLevel]->ObjectAt(x, j) == NULL) levels[currentLevel]->AddLevelObject(new Tile(T_WALL), x, j);
-      if (levels[currentLevel]->ObjectAt(x + width, j) == NULL) levels[currentLevel]->AddLevelObject(new Tile(T_WALL), x + width, j); 
+      if (levels[currentLevel]->ObjectAt(x, j)->GetType() == t_black) levels[currentLevel]->AddLevelObject(new Tile(t_wall), x, j);
+      if (levels[currentLevel]->ObjectAt(x + width - 1, j)->GetType() == t_black) levels[currentLevel]->AddLevelObject(new Tile(t_wall), x + width - 1, j); 
    }
+   // Room Filling
    for (int i = x + 1; i < width; i++)
    {
-      for (int j = y + 1; j < height; j++) if (levels[currentLevel]->ObjectAt(i, j) == NULL) levels[currentLevel]->AddLevelObject(new Tile(T_WHITE), i, j);
+      for (int j = y + 1; j < height; j++) if (levels[currentLevel]->ObjectAt(i, j) == NULL) levels[currentLevel]->AddLevelObject(new Tile(t_white), i, j);
    }   
 }
 
 void Game::NewPath (int x1, int y1, int x2, int y2)
 {
    if (debug) printf ("NewPath: (%d,%d) -> (%d,%d)\n", x1, y1, x2, y2);
+   
+   // Vertical path
    if (x1 == x2)
    {
       if (y1 < y2)
       {
          for (int j = y1; j <= y2; j++) 
          {
-            Tile* t = new Tile(T_PATH);
+            Tile* t = new Tile(t_path);
             levels[currentLevel]->AddLevelObject(t, x1, j);  
          }
       }
@@ -108,18 +107,19 @@ void Game::NewPath (int x1, int y1, int x2, int y2)
       {
          for (int j = y2; j <= y1; j++)
          {          
-            Tile* t = new Tile(T_PATH);
+            Tile* t = new Tile(t_path);
             levels[currentLevel]->AddLevelObject(t, x1, j);
          }    
       }
    }
+   // Horizontal path
    else // y1 == y2
    {
       if (x1 < x2)
       {
          for (int i = x1; i <= x2; i++)
          {  
-            Tile* t = new Tile(T_PATH);
+            Tile* t = new Tile(t_path);
             levels[currentLevel]->AddLevelObject(t, i, y1);
          }
       }
@@ -127,7 +127,7 @@ void Game::NewPath (int x1, int y1, int x2, int y2)
       {
          for (int i = x2; i <= x1; i++)
          {
-            Tile* t = new Tile(T_PATH);
+            Tile* t = new Tile(t_path);
             levels[currentLevel]->AddLevelObject(t, i, y1);
          }
       }
@@ -142,22 +142,23 @@ void Game::SetStart (int x, int y)
 
 void Game::PlaceAt (token what, int x, int y)
 {
-  if (debug) printf ("Place %s at (%d,%d)\n", tok_name[what], x, y);
-  //if (debug && what == t_diamond)
-    //printf ("Place the diamond at (%d,%d)...\n", x, y);
+   if (debug) printf ("Place %s at (%d,%d)\n", tok_name[what], x, y);
+   //if (debug && what == t_diamond)
+   //printf ("Place the diamond at (%d,%d)...\n", x, y);
 
-  Level* lvl = levels[currentLevel];
-  if (what == t_diamond) lvl->AddLevelObject(new Diamond(), x, y);
-  else if (what == t_gold) lvl->AddLevelObject(new Gold(), x,  y);
-  else if (what == t_up) lvl->AddLevelObject(new Tile(T_UP), x, y);
-  else if (what == t_down) lvl->AddLevelObject(new Tile(T_DOWN), x, y);
-  else if (what == t_arrow) lvl->AddLevelObject(new Trap(ARROW), x, y);  // Need to find out what type of trap is needed - ARROW for now
-  else if (what == t_transport) lvl->AddLevelObject(new Trap(TRANSPORT), x, y);
-  else if (what == t_sickness) lvl->AddLevelObject(new Consumable(C_BAD_DRINK), x, y);
-  else if (what == t_health) lvl->AddLevelObject(new Consumable(C_GOOD_DRINK), x, y);
-  else if (what == t_food) lvl->AddLevelObject(new Consumable(C_FOOD), x, y);
-  // Snake
-  // Rat
+   Level* lvl = levels[currentLevel];
+   if (what == t_diamond) lvl->AddLevelObject(new Diamond(), x, y);
+   else if (what == t_gold) lvl->AddLevelObject(new Gold(), x,  y);
+   else if (what == t_up) lvl->AddLevelObject(new Tile(t_up), x, y);
+   else if (what == t_down) lvl->AddLevelObject(new Tile(t_down), x, y);
+   else if (what == t_arrow) lvl->AddLevelObject(new Trap(t_arrow), x, y);  
+   else if (what == t_arrow) lvl->AddLevelObject(new Trap(t_arrow), x, y);
+   else if (what == t_transport) lvl->AddLevelObject(new Trap(t_transport), x, y);
+   else if (what == t_sickness) lvl->AddLevelObject(new Consumable(t_sickness), x, y);
+   else if (what == t_health) lvl->AddLevelObject(new Consumable(t_health), x, y);
+   else if (what == t_food) lvl->AddLevelObject(new Consumable(t_food), x, y);
+   // Snake
+   // Rat
   
 }
 
@@ -167,7 +168,7 @@ void Game::start(void)
 {
 
    playing = true;
-   
+   currentLevel = 0;   
   // The following shows you how to set some elements of the gui.
   // YOU NEED TO REPLACE THIS WITH YOUR REAL START CODE ...
 
@@ -180,6 +181,7 @@ void Game::start(void)
   
 // I was trying to get the display going.
 // I got it to compile but got a segmentation fault.
+   token tok;
    for (int x = 0; x < X_GRID_SIZE; x++)
    {
       for (int y = 0; y < Y_GRID_SIZE; y++)
@@ -188,38 +190,31 @@ void Game::start(void)
          //else
          //{
             LevelObject* thing = levels[currentLevel]->ObjectAt(x, y);
-            //gui_message(strcmp(typeid(*thing).name(), "4Tile"));
-            if (debug) printf ("x=%d, y=%d, type=%s, comp=%d, \n", x, y, typeid(*thing).name(), strcmp(typeid(*thing).name(), "4Tile"));
             
-            if (ObjectEquals(thing, "4Gold")) play_area->SetSquare(x, y, GOLD);
-            else if (ObjectEquals(thing, "4Diamond")) play_area->SetSquare(x, y, DIAMOND);       
-            else if (ObjectEquals(thing, "4Consumable"))
-            {
-               Consumable* c = (Consumable*) thing;
-               if (c->GetType() == C_FOOD) play_area->SetSquare(x, y, FOOD);
-               else if (c->GetType() == C_GOOD_DRINK || c->GetType() == C_BAD_DRINK) play_area->SetSquare(x, y, DRINK);
-            }
-            else if (ObjectEquals(thing, "4Trap"))
-            {
-               Trap* t = (Trap*) thing;
-               if (t->GetType() == ARROW) play_area->SetSquare(x, y, ATRAP);
-               else if (t->GetType() == TRANSPORT) play_area->SetSquare(x, y, TTRAP);
-            }             
-            else if (ObjectEquals(thing, "4Tile"))
-            {
-               gui_message("Found a tile"); 
-               Tile* temp = (Tile*) thing;               
-               if (temp->GetType() == T_WHITE) play_area->SetSquare(x, y, WHITE);
-               else if (temp->GetType() == T_WALL) play_area->SetSquare(x, y, WALL);             
-               else if (temp->GetType() == T_PATH) play_area->SetSquare(x, y, PATH);
-               else if (temp->GetType() == T_WALL) play_area->SetSquare(x, y, WALL);
-               else if (temp->GetType() == T_UP) play_area->SetSquare(x, y, GOUP);
-               else if (temp->GetType() == T_DOWN) play_area->SetSquare(x, y, GODOWN);
-               else if (temp->GetType() == T_BLACK) play_area->SetSquare(x, y, BLACK);
-            }         
+            //gui_message(strcmp(typeid(*thing).name(), "4Tile"));
+            //if (debug) printf ("x=%d, y=%d, type=%s, comp=%d, \n", x, y, typeid(*thing).name(), strcmp(typeid(*thing).name(), "4Tile"));
+            tok = thing->GetType();
+            if (tok == t_gold) play_area->SetSquare(x, y, GOLD);
+            else if (tok == t_diamond) play_area->SetSquare(x, y, DIAMOND);
+            else if (tok == t_food) play_area->SetSquare(x, y, FOOD);
+            else if (tok == t_health || tok == t_sickness) play_area->SetSquare(x, y, DRINK);
+	         else if (tok == t_arrow) play_area->SetSquare(x, y, ATRAP);
+            else if (tok == t_transport) play_area->SetSquare(x, y, TTRAP);
+            else if (tok == t_white) play_area->SetSquare(x, y, WHITE);
+            else if (tok == t_wall) play_area->SetSquare(x, y, WALL);             
+            else if (tok == t_path) play_area->SetSquare(x, y, PATH);
+            else if (tok == t_wall) play_area->SetSquare(x, y, WALL);
+            else if (tok == t_up) play_area->SetSquare(x, y, GOUP);
+            else if (tok == t_down) play_area->SetSquare(x, y, GODOWN);
+            else if (tok == t_black) play_area->SetSquare(x, y, BLACK);      
       }
-   }    
-   gui_message("Did the loop"); 
+   }
+   //play_area->SetSquare(47,37, FOOD);
+   
+   //for(int x = 0; x < 50; x++)
+   //{
+      //for(int y = 0; y < 40; y++) if (debug) printf("Object at %d, %d is %d\n", x, y, levels[currentLevel]->ObjectAt(x,y)->GetType());
+   //}
  
 
 /*         

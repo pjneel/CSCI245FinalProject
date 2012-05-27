@@ -19,10 +19,12 @@ class Room;
 class LevelObject 
 {
 public:
-   LevelObject();
+   //LevelObject();
+   LevelObject(token tok);
    bool IsVisible() const;
    void SetVisible();
-   virtual bool IsWalkable() const;
+   bool IsWalkable() const;
+   token GetType() const;
 private:
    token type;
    bool visible;
@@ -32,7 +34,8 @@ private:
 
 class Gold : public LevelObject
 {
-public:   
+public:
+   Gold();
    int GetGold();
 };
 
@@ -60,11 +63,15 @@ private:
 
 
 class Item : public LevelObject
-{   
+{
+public:
+   Item(token t);
 };
  
 class Diamond : public Item
-{   
+{
+public:
+   Diamond();
 };
 
 class Consumable : public Item
