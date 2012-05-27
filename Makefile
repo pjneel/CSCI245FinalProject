@@ -50,14 +50,14 @@ testread: lexfile.h lexfile.cxx readgame.cxx
 
 gui.o: gui.fl gui.cxx
 gui.o PlayArea.o: PlayArea.h
-game.o: game.h gui.fl PlayArea.h 
+game.o: game.h gui.fl PlayArea.h Level.h LevelObject.h Player.h
 PlayArea.o: xpms/*.xpm
 lexfile.o: lexfile.h
 readgame.o: lexfile.h
 Level.o: Level.h LevelObject.h Monster.h Room.h
 LevelObject.o: LevelObject.h Player.h
 Monster.o: Monster.h Player.h
-Player.o: Player.h LevelObject.h
+Player.o: Player.h LevelObject.h game.h
 Room.o: Room.h
 
 # For each .h file in your project, make sure that you have

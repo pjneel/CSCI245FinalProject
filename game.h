@@ -6,6 +6,7 @@
 #include "lexfile.h"
 #include <iostream>
 
+class Player;
 class Level;
 
 // types
@@ -49,7 +50,8 @@ class Game {
   bool had_error;
   bool playing;
   Level* levels[10];
-  int currentLevel; 
+  int currentLevel;
+  Player* player;
    
 };
 

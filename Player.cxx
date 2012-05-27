@@ -14,7 +14,7 @@ Player::Player()
 	this->moveCount = 0;
 	for(int i = 0; i < 10; i++) inventory[i] = NULL;
 	this->room = NULL;
-	this->beneath = NULL;
+	//this->beneath = NULL;
 }
 Player::Player(int xPos, int yPos)
 {
@@ -26,16 +26,16 @@ Player::Player(int xPos, int yPos)
 	this->moveCount = 0;
 	for(int i = 0; i < 10; i++) inventory[i] = NULL;
 	this->room = NULL;
-	this->beneath = NULL;
+	//this->beneath = NULL;
 }
 
-void Player::Move(int direction)
+void Player::Move(direction d)
 {
 	// Level::ObjectAt will need to be called first to verify the move is valid
-	if(direction == 0) this->xPos += 1;
-	else if (direction == 1) this->xPos -= 1;
-	else if (direction == 2) this->yPos += 1;
-	else if (direction == 3) this->yPos -= 1;
+	if(d == NORTH) this->yPos -= 1;
+	else if (d == SOUTH) this->yPos += 1;
+	else if (d == WEST) this->xPos -= 1;
+	else if (d == EAST) this->xPos += 1;
 	
 	// Need else statement here for invalid direction
 	// Possibly change function from void to boolean and return false if error
@@ -101,7 +101,7 @@ Room* Player::GetRoom()
 {
 	return this->room;
 }
-LevelObject* Player::GetBeneath()
+/*LevelObject* Player::GetBeneath()
 {
 	return this->beneath;
-}
+}*/

@@ -80,6 +80,11 @@ void Level::SetStart(int xPosition, int yPosition)
    xStart = xPosition;
    yStart = yPosition;
 }
+void Level::GetStart(int &xPosition, int &yPosition)
+{
+   xPosition = this->xStart;
+   yPosition = this->yStart;
+}
 
 bool Level::IsVisible(int xPosition, int yPosition) const
 {

@@ -5,7 +5,7 @@
 #include "gui.h"
 #include "Level.h"
 #include "LevelObject.h"
-
+#include "Player.h"
 
 #include <FL/fl_ask.H>
 #include <cstdio>
@@ -23,7 +23,24 @@ const int MAX_LEVELS = 10;
 /*bool ObjectEquals(LevelObject* lo, char* c)
 {
    return (strcmp(typeid(*lo).name(), c) == 0);
-}*/  
+}*/
+
+void TokenSet(int x, int y, token tok)
+{
+   if (tok == t_gold) play_area->SetSquare(x, y, GOLD);
+   else if (tok == t_diamond) play_area->SetSquare(x, y, DIAMOND);
+   else if (tok == t_food) play_area->SetSquare(x, y, FOOD);
+   else if (tok == t_health || tok == t_sickness) play_area->SetSquare(x, y, DRINK);
+   else if (tok == t_arrow) play_area->SetSquare(x, y, ATRAP);
+   else if (tok == t_transport) play_area->SetSquare(x, y, TTRAP);
+   else if (tok == t_white) play_area->SetSquare(x, y, WHITE);
+   else if (tok == t_wall) play_area->SetSquare(x, y, WALL);             
+   else if (tok == t_path) play_area->SetSquare(x, y, PATH);
+   else if (tok == t_wall) play_area->SetSquare(x, y, WALL);
+   else if (tok == t_up) play_area->SetSquare(x, y, GOUP);
+   else if (tok == t_down) play_area->SetSquare(x, y, GODOWN);
+   else if (tok == t_black) play_area->SetSquare(x, y, BLACK);      
+}
 
 void Game::error(char *fmt, ...)
 {
@@ -82,9 +99,10 @@ void Game::NewRoom (int x, int y, int width, int height)
       if (levels[currentLevel]->ObjectAt(x + width - 1, j)->GetType() == t_black) levels[currentLevel]->AddLevelObject(new Tile(t_wall), x + width - 1, j); 
    }
    // Room Filling
-   for (int i = x + 1; i < width; i++)
+   for (int i = x + 1; i < x + width - 1; i++)
    {
-      for (int j = y + 1; j < height; j++) if (levels[currentLevel]->ObjectAt(i, j) == NULL) levels[currentLevel]->AddLevelObject(new Tile(t_white), i, j);
+      /*if (levels[currentLevel]->ObjectAt(i, j)->GetType() == t_black || levels[currentLevel]->ObjectAt(i, j) == NULL)*/ 
+      for (int j = y + 1; j < y + height - 1; j++)levels[currentLevel]->AddLevelObject(new Tile(t_white), i, j);
    }   
 }
 
@@ -137,7 +155,7 @@ void Game::NewPath (int x1, int y1, int x2, int y2)
 void Game::SetStart (int x, int y)
 {
   if (debug) printf ("Level starts at (%d,%d)\n", x, y);
-  levels[currentLevel]->SetStart(x, y);  
+  levels[currentLevel]->SetStart(x, y);
 }
 
 void Game::PlaceAt (token what, int x, int y)
@@ -178,9 +196,6 @@ void Game::start(void)
 
   gui_message("Welcome to the game!");
   
-  
-// I was trying to get the display going.
-// I got it to compile but got a segmentation fault.
    token tok;
    for (int x = 0; x < X_GRID_SIZE; x++)
    {
@@ -191,10 +206,9 @@ void Game::start(void)
          //{
             LevelObject* thing = levels[currentLevel]->ObjectAt(x, y);
             
-            //gui_message(strcmp(typeid(*thing).name(), "4Tile"));
-            //if (debug) printf ("x=%d, y=%d, type=%s, comp=%d, \n", x, y, typeid(*thing).name(), strcmp(typeid(*thing).name(), "4Tile"));
             tok = thing->GetType();
-            if (tok == t_gold) play_area->SetSquare(x, y, GOLD);
+            TokenSet(x, y, tok);
+            /*if (tok == t_gold) play_area->SetSquare(x, y, GOLD);
             else if (tok == t_diamond) play_area->SetSquare(x, y, DIAMOND);
             else if (tok == t_food) play_area->SetSquare(x, y, FOOD);
             else if (tok == t_health || tok == t_sickness) play_area->SetSquare(x, y, DRINK);
@@ -206,9 +220,15 @@ void Game::start(void)
             else if (tok == t_wall) play_area->SetSquare(x, y, WALL);
             else if (tok == t_up) play_area->SetSquare(x, y, GOUP);
             else if (tok == t_down) play_area->SetSquare(x, y, GODOWN);
-            else if (tok == t_black) play_area->SetSquare(x, y, BLACK);      
+            else if (tok == t_black) play_area->SetSquare(x, y, BLACK); */     
       }
    }
+   
+   // Player position
+   int xS, yS;
+   levels[currentLevel]->GetStart(xS, yS);
+   player->SetPosition(xS, yS);
+   play_area ->SetSquare(xS, yS, PLAYER);
    //play_area->SetSquare(47,37, FOOD);
    
    //for(int x = 0; x < 50; x++)
@@ -290,6 +310,12 @@ void Game::move (direction dir)
   if (debug)
     printf ("Move %d\n", dir);
   gui_message("move -> %d", dir);
+  int x = player->GetX();
+  int y = player->GetY();
+  token tok = levels[currentLevel]->ObjectAt(x, y)->GetType();
+  TokenSet(x, y, tok);
+  player->Move(dir);
+  play_area->SetSquare(player->GetX(), player->GetY(), PLAYER);
 }
 
 Game::Game()
@@ -301,6 +327,7 @@ Game::Game()
       levels[i] = NULL;
    }
    currentLevel = -1;
+   player = new Player();
 }
 
 

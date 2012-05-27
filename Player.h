@@ -6,6 +6,7 @@
 #define PLAYER_H
 
 #include "LevelObject.h"
+#include "game.h"
 
 //class LevelObject;
 class Monster;
@@ -24,11 +25,11 @@ private:
 	int hunger;
 	int moveCount;
 	Room* room;
-	LevelObject* beneath;
+	//LevelObject* beneath;
 public:
 	Player();
 	Player(int xPos, int yPos);
-	void Move(int direction);
+	void Move(direction d);
 	void SetPosition(int x, int y);
 	void Die();
 	bool Pickup(Item* o);
@@ -40,7 +41,7 @@ public:
 	int GetY();
 	int GetHunger();
 	Room* GetRoom();
-	LevelObject* GetBeneath();
+	//LevelObject* GetBeneath();
 };
 
 #endif
