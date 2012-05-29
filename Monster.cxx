@@ -10,11 +10,22 @@ Monster::Monster(int x, int y, MonsterType t)
    xPosition = x;
    yPosition = y;
    type = t;
+   visible = false;
 }
 
 MonsterType Monster::GetType() const
 {
    return type;
+}
+
+void Monster::SetVisible()
+{
+   visible = true;
+}
+
+void Monster::SetInvisible()
+{
+   visible = false;
 }
 
 void Monster::Move(direction d)
@@ -33,6 +44,11 @@ void Monster::ChangeHealth(int h)
 void Monster::Combat(Player p)
 {
    // Combat code goes here
+}
+
+void Monster::SetRoom(Room* r)
+{
+   room = r;
 }
 
 int Monster::GetX() const

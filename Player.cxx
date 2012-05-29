@@ -74,31 +74,44 @@ void Player::Consume(Consumable* c)
 	//else if (baddrink) this->health -= 5;
 	//else if (gooddrink) this->health = 10;
 }
+
 void Player::ChangeGold(int amount)
 {
 	this->gold += amount;
 }
+
 void Player::ChangeHealth(int amount)
 {
 	this->health += amount;
 }
-int Player::GetX()
+
+void Player::SetRoom(Room* r)
+{
+   room = r;
+}
+
+int Player::GetGold() const
+{
+   return gold;
+}
+
+int Player::GetX() const
 {
 	return this->xPos;
 }
-int Player::GetY()
+
+int Player::GetY() const
 {
 	return this->yPos;
 }
-int Player::GetHunger()
+
+int Player::GetHunger() const
 {
 	return this->hunger;
 }
-Room* Player::GetRoom()
+
+Room* Player::GetRoom() const
 {
 	return this->room;
 }
-/*LevelObject* Player::GetBeneath()
-{
-	return this->beneath;
-}*/
+

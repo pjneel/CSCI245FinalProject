@@ -11,24 +11,24 @@
 class Player;
 class Room;
 
-//enum TrapType {ARROW, TRANSPORT};
-//enum TileType {T_WALL, T_PATH, T_WHITE, T_BLACK, T_UP, T_DOWN};
-//enum ConsumableType {C_FOOD, C_GOOD_DRINK, C_BAD_DRINK};
-//enum ClassType {TYPE_GOLD, TYPE_TRAP
-
 class LevelObject 
 {
 public:
-   //LevelObject();
-   LevelObject(token tok);
+   LevelObject(token t);
+   LevelObject(token t, Room* r);
    bool IsVisible() const;
    void SetVisible();
+   void SetBeneath(LevelObject* b);
+   void SetRoom(Room* r);
+   LevelObject* GetBeneath() const;
+   Room* GetRoom() const;
    bool IsWalkable() const;
    token GetType() const;
 private:
    token type;
    bool visible;
    Room* room;
+   LevelObject* beneath;
 };
 
 
@@ -36,6 +36,7 @@ class Gold : public LevelObject
 {
 public:
    Gold();
+   Gold(Room* r);
    int GetGold();
 };
 
@@ -44,10 +45,8 @@ class Trap : public LevelObject
 {
 public:
    Trap(token t);
+   Trap(token t, Room* r);
    void Activate(Player p); 
-//   TrapType GetType();  
-private:
-//   TrapType type;  
 };
 
 
@@ -56,9 +55,7 @@ class Tile : public LevelObject
 public:
    bool IsWalkable() const;
    Tile(token t);
-//   TileType GetType() const; 
-private:
-//   TileType type;   
+   Tile(token t, Room* r);
 };
 
 
@@ -66,21 +63,21 @@ class Item : public LevelObject
 {
 public:
    Item(token t);
+   Item(token t, Room* r);
 };
  
 class Diamond : public Item
 {
 public:
    Diamond();
+   Diamond(Room* r);
 };
 
 class Consumable : public Item
 {
 public:
    Consumable(token t);
-//   ConsumableType GetType() const;
-private:
-//   ConsumableType type;   
+   Consumable(token t, Room* r);
 };
    
    

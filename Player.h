@@ -37,10 +37,13 @@ public:
 	void Consume(Consumable* c);
 	void ChangeGold(int amount);
 	void ChangeHealth(int amount);
-	int GetX();
-	int GetY();
-	int GetHunger();
-	Room* GetRoom();
+	void SetRoom(Room* r);
+	int GetGold() const;
+	int GetX() const;
+	int GetY() const;
+	int GetHunger() const;
+	Room* GetRoom() const;
+	
 	//LevelObject* GetBeneath();
 };
 

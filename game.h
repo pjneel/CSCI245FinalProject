@@ -29,6 +29,7 @@ class Game {
   void NewPath (int row1, int col1, int row2, int col2);  
   void SetStart (int row, int col);
   void PlaceAt (token what, int row, int col);
+  void Visibility();
   
 
   // routines to play the game

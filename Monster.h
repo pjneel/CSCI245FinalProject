@@ -18,15 +18,19 @@ class Monster
 public:
    Monster(int x, int y, MonsterType t);
    MonsterType GetType() const;   
+   void SetVisible();
+   void SetInvisible();
    void Move(direction d);   
    void ChangeHealth(int h);   
    void Combat(Player p);   
+   void SetRoom(Room* r);
    int GetX() const;
    int GetY() const;
    Room* GetRoom() const;
 private:
    MonsterType type;
    int health;   
+   bool visible;
    Room* room;
    LevelObject* beneath;
    int xPosition;

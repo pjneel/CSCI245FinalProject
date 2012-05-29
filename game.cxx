@@ -17,13 +17,6 @@ using namespace std;
 // Utility routine:  called like printf.
 
 const int MAX_LEVELS = 10;
-//const int X_GRID_SIZE = 50;
-//const int Y_GRID_SIZE = 40;
-
-/*bool ObjectEquals(LevelObject* lo, char* c)
-{
-   return (strcmp(typeid(*lo).name(), c) == 0);
-}*/
 
 void TokenSet(int x, int y, token tok)
 {
@@ -43,27 +36,35 @@ void TokenSet(int x, int y, token tok)
 }
 
 void Game::DrawFresh()
-{
+{  
+   // Draw level
    token tok;
    for (int x = 0; x < X_GRID_SIZE; x++)
    {
       for (int y = 0; y < Y_GRID_SIZE; y++)
       {
-         //if (levels[currentLevel]->IsVisible(x, y)) play_area->SetSquare(x, y, BLACK);
-         //else
-         //{
-            LevelObject* thing = levels[currentLevel]->ObjectAt(x, y);
-            
+         if (!levels[currentLevel]->IsVisible(x, y)) play_area->SetSquare(x, y, BLACK);
+         else
+         {
+            LevelObject* thing = levels[currentLevel]->ObjectAt(x, y);            
             tok = thing->GetType();
             TokenSet(x, y, tok);   
+         }
       }
    }
    
-   // Player position
-   int xS, yS;
-   levels[currentLevel]->GetStart(xS, yS);
-   player->SetPosition(xS, yS);
-   play_area ->SetSquare(xS, yS, PLAYER);   
+   // Draw monsters
+   for (int a = 0; a < levels[currentLevel]->NumberMonsters(); a++)
+   {
+      Monster* m = levels[currentLevel]->GetMonster(a);
+      if (m->GetType() == M_SNAKE) play_area->SetSquare(m->GetX(), m->GetY(), SNAKE);
+      else if (m->GetType() == M_RAT) play_area->SetSquare(m->GetX(), m->GetY(), RAT);      
+   }
+   
+   // Draw player
+   int x = player->GetX();
+   int y = player->GetY();
+   play_area ->SetSquare(x, y, PLAYER); 
 }
 
 void Game::error(char *fmt, ...)
@@ -87,7 +88,8 @@ void Game::SetBuildLevel (int newlevel)
    if (debug) printf ("SetBuildLevel -> %d.\n", newlevel);
    levels[newlevel] = new Level();
    currentLevel = newlevel;
-   Tile* black = new Tile(t_black);   
+   Tile* black = new Tile(t_black);
+   black->SetVisible();   
    for (int x = 0; x < X_GRID_SIZE; x++)
    {
       for (int y = 0; y < Y_GRID_SIZE; y++)
@@ -99,11 +101,10 @@ void Game::SetBuildLevel (int newlevel)
 
 void Game::NewRoom (int x, int y, int width, int height)
 {
-   if (debug) printf ("NewRoom(%d,%d,%d,%d)\n", x, y, width, height);   
-   levels[currentLevel]->AddRoom(x, y, width, height);
-   if (debug) printf ("Room placed!");
-   Tile* wall = new Tile(t_wall);
-   
+   if (debug) printf ("NewRoom(%d,%d,%d,%d)\n", x, y, width, height);      
+   Room* r = levels[currentLevel]->AddRoom(x, y, width, height);
+   Tile* wall = new Tile(t_wall, r);
+   Tile* white = new Tile(t_white, r);    
 
    // Top and Bottom Walls 
    for (int i = x; i < x + width; i++)
@@ -112,17 +113,18 @@ void Game::NewRoom (int x, int y, int width, int height)
       //if (debug) printf ("Placing wall at x:%d y: %d\n", i, y + height - 1);
       if (levels[currentLevel]->ObjectAt(i,y + height - 1)->GetType() == t_black) levels[currentLevel]->AddLevelObject(wall, i, y + height - 1);
    }
+   
    // Left and Right Walls
    for (int j = y + 1; j < y + height; j++)
    {
-      if (levels[currentLevel]->ObjectAt(x, j)->GetType() == t_black) levels[currentLevel]->AddLevelObject(new Tile(t_wall), x, j);
-      if (levels[currentLevel]->ObjectAt(x + width - 1, j)->GetType() == t_black) levels[currentLevel]->AddLevelObject(new Tile(t_wall), x + width - 1, j); 
+      if (levels[currentLevel]->ObjectAt(x, j)->GetType() == t_black) levels[currentLevel]->AddLevelObject(wall, x, j);
+      if (levels[currentLevel]->ObjectAt(x + width - 1, j)->GetType() == t_black) levels[currentLevel]->AddLevelObject(wall, x + width - 1, j); 
    }
-   // Room Filling
+   
+   // Fill room with white
    for (int i = x + 1; i < x + width - 1; i++)
    {
-      /*if (levels[currentLevel]->ObjectAt(i, j)->GetType() == t_black || levels[currentLevel]->ObjectAt(i, j) == NULL)*/ 
-      for (int j = y + 1; j < y + height - 1; j++)levels[currentLevel]->AddLevelObject(new Tile(t_white), i, j);
+      for (int j = y + 1; j < y + height - 1; j++)levels[currentLevel]->AddLevelObject(white, i, j);
    }   
 }
 
@@ -214,67 +216,46 @@ void Game::start(void)
   gui_gold->value("0");
 
   gui_message("Welcome to the game!");
-  
-   token tok;
-   for (int x = 0; x < X_GRID_SIZE; x++)
-   {
-      for (int y = 0; y < Y_GRID_SIZE; y++)
-      {
-         //if (levels[currentLevel]->IsVisible(x, y)) play_area->SetSquare(x, y, BLACK);
-         //else
-         //{
-            LevelObject* thing = levels[currentLevel]->ObjectAt(x, y);
-            
-            tok = thing->GetType();
-            TokenSet(x, y, tok);   
-      }
-   }
    
    // Player position
    int xS, yS;
    levels[currentLevel]->GetStart(xS, yS);
    player->SetPosition(xS, yS);
-   play_area ->SetSquare(xS, yS, PLAYER);
+   player->SetRoom(levels[currentLevel]->GetRoom(xS, yS));
    
+   Visibility();
+   
+   token tok;
+   for (int x = 0; x < X_GRID_SIZE; x++)
+   {
+      for (int y = 0; y < Y_GRID_SIZE; y++)
+      {
+         if (!levels[currentLevel]->IsVisible(x, y)) play_area->SetSquare(x, y, BLACK);
+         else
+         {
+            LevelObject* thing = levels[currentLevel]->ObjectAt(x, y);
+            
+            tok = thing->GetType();
+            TokenSet(x, y, tok);   
+         }
+      }
+   }
+   
+   play_area ->SetSquare(xS, yS, PLAYER);
+      
+   // Monster positions
    for (int a = 0; a < levels[currentLevel]->NumberMonsters(); a++)
    {
       Monster* m = levels[currentLevel]->GetMonster(a);
       if (m->GetType() == M_SNAKE) play_area->SetSquare(m->GetX(), m->GetY(), SNAKE);
-      else if (m->GetType() == M_RAT) play_area->SetSquare(m->GetX(), m->GetY(), RAT);      
+      else if (m->GetType() == M_RAT) play_area->SetSquare(m->GetX(), m->GetY(), RAT); 
+      m->SetRoom(levels[currentLevel]->GetRoom(m->GetX(), m->GetY()));     
    }
    
    //for(int x = 0; x < 50; x++)
    //{
       //for(int y = 0; y < 40; y++) if (debug) printf("Object at %d, %d is %d\n", x, y, levels[currentLevel]->ObjectAt(x,y)->GetType());
-   //}
- 
-
-/*         
-   int x, y;
-
-  for (x = 0; x<50; x++) play_area->SetSquare(x,2,WHITE);
-  for (x = 0; x<50; x++) play_area->SetSquare(x,4,WALL);
-  for (x = 0; x<50; x++) play_area->SetSquare(x,6,PATH);
-  for (x = 0; x<50; x++) play_area->SetSquare(x,8,DIAMOND);
-  for (x = 0; x<50; x++) play_area->SetSquare(x,10,GOLD);
-  for (x = 0; x<50; x++) play_area->SetSquare(x,12,FOOD);
-  for (x = 0; x<50; x++) play_area->SetSquare(x,13,ATRAP);
-  for (x = 0; x<50; x++) play_area->SetSquare(x,14,DRINK);
-  for (x = 0; x<50; x++) play_area->SetSquare(x,15,TTRAP);
-  for (x = 0; x<50; x++) play_area->SetSquare(x,16,SNAKE);
-  for (x = 0; x<50; x++) play_area->SetSquare(x,17,RAT);
-
-  for (x=10; x<30; x++)
-    for ( y=20; y<27; y++)
-      play_area->SetSquare(x, y,
-			   (x==10 || x== 29 || y==20 || y==26 ? WALL
-			    : WHITE));
-  play_area->SetSquare(15, 22, GOUP);
-  play_area->SetSquare(25, 24, GODOWN);
-  play_area->SetSquare(20, 23, PLAYER);
-
-  // End of code you need to replace ....
-*/  
+   //} 
 }
 
 void Game::quit(void)
@@ -319,8 +300,7 @@ void Game::drink(void)
 void Game::move (direction dir)
 {
    CHECK_PLAYING;
-   if (debug)
-      printf ("Move %d\n", dir);
+   if (debug) printf ("Move %d\n", dir);
    gui_message("move -> %d", dir);
   
    int xNew = player->GetX();
@@ -376,8 +356,96 @@ void Game::move (direction dir)
    token tok = levels[currentLevel]->ObjectAt(x, y)->GetType();
    TokenSet(x, y, tok);
    player->Move(dir);
+   player->SetRoom(levels[currentLevel]->ObjectAt(x, y)->GetRoom());
    play_area->SetSquare(player->GetX(), player->GetY(), PLAYER);
    levels[currentLevel]->MoveMonsters(player);
+   Visibility();
+   if (tok == t_gold)
+   {
+      LevelObject* money = levels[currentLevel]->ObjectAt(x, y);
+      Gold* coins = (Gold*)money;
+      player->ChangeGold(coins->GetGold());
+      levels[currentLevel]->AddLevelObject(money->GetBeneath(), x, y);
+      delete money;
+      
+      if (debug) printf ("Gold %d\n", player->GetGold());
+      
+      // gui_gold wants a char*, the following code does not work, itoa not available on the Unix machines.
+      
+      /*char buffer[10];
+      snprintf(buffer, 10, %d, player->GetGold());
+      gui_gold->value(buffer);*/      
+   }
+   
+   Game::DrawFresh();
+}
+
+void Game::Visibility()
+{
+   int px = player->GetX();
+   int py = player->GetY();
+   LevelObject* thing = levels[currentLevel]->ObjectAt(px, py);
+   
+   if (!thing->IsVisible()) // if the object where the player is standing is not visible
+   {
+      thing->SetVisible();
+      if (thing->GetRoom() != NULL) // if in a room
+      {
+         // Set LevelObjects associated with this room to visible
+         Room* r = thing->GetRoom();
+         for (int x = 0; x < X_GRID_SIZE; x++)
+         {
+            for (int y = 0; y < Y_GRID_SIZE; y++)
+            {
+               if (levels[currentLevel]->GetRoom(x, y) == r) 
+               {
+                  LevelObject* thing2 = levels[currentLevel]->ObjectAt(x, y);
+                  thing2->SetVisible();
+                  if (thing2->GetBeneath() != NULL) thing2->GetBeneath()->SetVisible();                  
+               }
+            }
+         }
+      }
+   }
+   if (player->GetRoom() == NULL) // check the 4 directions to the range of what is visible
+   {
+      int dx = px;
+      int dy = py;
+      
+      // Check North
+      dy--;
+      while (!levels[currentLevel]->ObjectAt(px, dy)->IsVisible() && dy >= 0 && levels[currentLevel]->ObjectAt(px, dy)->GetRoom() == NULL) 
+      {
+         levels[currentLevel]->ObjectAt(px, dy)->SetVisible();
+         dy--;
+      }         
+      
+      // Check South
+      dy = py;
+      dy++;
+      while (!levels[currentLevel]->ObjectAt(px, dy)->IsVisible() && dy < Y_GRID_SIZE && levels[currentLevel]->ObjectAt(px, dy)->GetRoom() == NULL) 
+      {
+         levels[currentLevel]->ObjectAt(px, dy)->SetVisible();
+         dy++;
+      }
+      
+      // Check West
+      dx--;
+      while (!levels[currentLevel]->ObjectAt(dx, py)->IsVisible() && dx >= 0 && levels[currentLevel]->ObjectAt(dx, py)->GetRoom() == NULL) 
+      {
+         levels[currentLevel]->ObjectAt(dx, py)->SetVisible();
+         dx--;
+      }        
+      
+      // Check East
+      dx = px;
+      dx++;
+      while (!levels[currentLevel]->ObjectAt(dx, py)->IsVisible() && dx < X_GRID_SIZE && levels[currentLevel]->ObjectAt(dx, py)->GetRoom() == NULL) 
+      {
+         levels[currentLevel]->ObjectAt(dx, py)->SetVisible();
+         dx++;
+      }           
+   }
 }
 
 Game::Game()

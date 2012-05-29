@@ -7,6 +7,8 @@
 #include "Monster.h"
 #include "Room.h"
 #include "Player.h"
+#include "PlayArea.h"
+#include "lexfile.h" // for token enumeration
 
 //#include <typeinfo>
 #include <time.h> // for seeding randomization
@@ -29,8 +31,37 @@ Level::Level()
 
 void Level::AddLevelObject(LevelObject* lo, int xPosition, int yPosition)
 {
-   //if (grid[xPosition][yPosition] == NULL || grid[xPosition][yPosition]->GetType() == t_black) grid[xPosition][yPosition] = lo;
-   grid[xPosition][yPosition] = lo;
+   if (grid[xPosition][yPosition] == NULL)
+   {
+      grid[xPosition][yPosition] = lo;      
+      return;
+   }
+   
+   token added = lo->GetType();
+   token existing = grid[xPosition][yPosition]->GetType();
+   
+   if (existing == t_black) grid[xPosition][yPosition] = lo;
+   else if (existing == t_diamond || existing == t_food || existing == t_sickness || existing == t_health || existing == t_gold)
+   {
+      grid[xPosition][yPosition]->SetBeneath(lo);
+      if (added == t_white) grid[xPosition][yPosition]->SetRoom(lo->GetRoom());
+   }
+   else if (added == t_diamond || added == t_food || added == t_sickness || added == t_health || added == t_gold || added == t_arrow || added == t_transport)
+   {
+      lo->SetBeneath(grid[xPosition][yPosition]);      
+      lo->SetRoom(grid[xPosition][yPosition]->GetRoom());
+      grid[xPosition][yPosition] = lo;
+   }
+   else if (added == t_up || added == t_down) 
+   {
+      lo->SetRoom(grid[xPosition][yPosition]->GetRoom());
+      grid[xPosition][yPosition] = lo;      
+   }
+   else if (added == t_path && existing == t_wall)
+   {
+      lo->SetRoom(grid[xPosition][yPosition]->GetRoom());
+      grid[xPosition][yPosition] = lo;
+   }
 }
 
 LevelObject* Level::ObjectAt(int xPosition, int yPosition) const
@@ -49,9 +80,9 @@ bool Level::IsWalkable(int xPosition, int yPosition) const
 {
    token t = grid[xPosition][yPosition]->GetType();
    bool tileWalkable = true;
-   if (t != t_wall && t != t_black) tileWalkable = false;
+   if (t == t_wall || t == t_black) tileWalkable = false;
 
-   return tileWalkable && IsMonsterAt(xPosition, yPosition);   
+   return tileWalkable && !IsMonsterAt(xPosition, yPosition);   
 }
 
 bool Level::IsMonsterAt(int xPosition, int yPosition) const
@@ -66,10 +97,11 @@ bool Level::IsMonsterAt(int xPosition, int yPosition) const
    return false;   
 }
 
-void Level::AddRoom(int xPosition, int yPosition, int width, int height)
+Room* Level::AddRoom(int xPosition, int yPosition, int width, int height)
 {   
    Room* temp = new Room(xPosition, yPosition, width, height);
-   rooms.push_back(temp);
+   //rooms.push_back(temp);
+   return temp;
 }
 
 void Level::SetStart(int xPosition, int yPosition)
@@ -86,6 +118,11 @@ void Level::GetStart(int &xPosition, int &yPosition)
 bool Level::IsVisible(int xPosition, int yPosition) const
 {
    return grid[xPosition][yPosition]->IsVisible();
+}
+
+Room* Level::GetRoom(int xPosition, int yPosition) const
+{
+   return ObjectAt(xPosition, yPosition)->LevelObject::GetRoom();
 }
 
 void Level::AddMonsterAt(int xPosition, int yPosition, MonsterType t)
@@ -108,53 +145,100 @@ void Level::MoveMonsters(Player* p)
    srand(time(NULL)); // initialize random seed  
    for (int a = 0; a < monsters.size(); a++)
    {  
-      int x = monsters[a]->GetX();
-      int y = monsters[a]->GetY();
-      if (p->GetRoom() == monsters[a]->GetRoom()) // Check if monster is in the same room as the player
+      int xNew = monsters[a]->GetX();
+      int yNew = monsters[a]->GetY();
+      if (p->GetRoom() == monsters[a]->GetRoom()) // Check if monster is in the same room as the player.
       {          
+         printf ("Monster #%d - in same room as player.\n", a);
          int move = (rand() % 12) + 1;
          if (move == 1) 
          {
-            monsters[a]->Move(NORTH);
+            yNew--;
+            if (IsWalkable(xNew, yNew)) monsters[a]->Move(NORTH);            
          }
          else if (move == 2) 
          {
-            monsters[a]->Move(EAST);
+            xNew++;
+            if (IsWalkable(xNew, yNew)) monsters[a]->Move(EAST);
          }
          else if (move ==3) 
          {
-            monsters[a]->Move(SOUTH);
+            yNew++;
+            if (IsWalkable(xNew, yNew)) monsters[a]->Move(SOUTH);
          }
          else if (move == 4) 
          {
-            monsters[a]->Move(WEST);
+            xNew--;
+            if (IsWalkable(xNew, yNew)) monsters[a]->Move(WEST);
          }
          else if (move >= 7 && move <= 12)
          {
-            // Move toward the player code
+            //printf ("Monster #%d - Move towards player.\n", a);
+            int dx = p->GetX() - xNew; 
+            int dy = p->GetY() - yNew;
+            if (abs(dx) > abs(dy)) 
+            {
+               if (dx < 0) 
+               {
+                  xNew--;
+                  if (IsWalkable(xNew, yNew)) monsters[a]->Move(WEST); 
+               }
+               else 
+               {
+                  xNew++;
+                  if (IsWalkable(xNew, yNew)) monsters[a]->Move(EAST);
+               }                  
+            }
+            else
+            {
+               if (dy < 0) 
+               {
+                  yNew--;
+                  if (IsWalkable(xNew, yNew)) monsters[a]->Move(NORTH);
+               }                  
+               else 
+               {
+                  yNew++;
+                  if (IsWalkable(xNew, yNew)) monsters[a]->Move(SOUTH);
+               }                  
+            }            
          }         
       }
       else // Monster not in the same room
       {
          int move = (rand() % 6) + 1;
-         if (move == 1) 
+         if (move == 1)
          {
-            monsters[a]->Move(NORTH);
+            
+            yNew--;
+            if (IsWalkable(xNew, yNew)) 
+            {
+               printf ("Move NORTH IsWalkable TRUE.\n");
+               monsters[a]->Move(NORTH);      
+            }       
          }
          else if (move == 2) 
          {
-            monsters[a]->Move(EAST);
+            printf ("Move EAST.\n");
+            xNew++;
+            if (IsWalkable(xNew, yNew)) monsters[a]->Move(EAST);
          }
          else if (move ==3) 
          {
-            monsters[a]->Move(SOUTH);
+            printf ("Move SOUTH.\n");
+            yNew++;
+            if (IsWalkable(xNew, yNew)) monsters[a]->Move(SOUTH);
          }
          else if (move == 4) 
          {
-            monsters[a]->Move(WEST);
-         }
-         
+            printf ("Move WEST.\n");
+            xNew--;
+            if (IsWalkable(xNew, yNew)) monsters[a]->Move(WEST);
+         }         
       }
+      monsters[a]->SetRoom(ObjectAt(monsters[a]->GetX(), monsters[a]->GetY())->GetRoom());
+      if (IsVisible(monsters[a]->GetX(), monsters[a]->GetY())) monsters[a]->SetVisible();
+      else monsters[a]->SetInvisible();
    }
 }
 

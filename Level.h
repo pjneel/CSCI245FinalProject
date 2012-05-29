@@ -25,7 +25,7 @@ class Level
 private:
 	LevelObject* grid[X_GRID_SIZE][Y_GRID_SIZE];
 	vector<Monster*> monsters;
-	vector<Room*> rooms;
+	//vector<Room*> rooms;
 	int xStart;
 	int yStart;
 public:
@@ -37,10 +37,11 @@ public:
    bool IsMonsterAt(int xPosition, int yPosition) const;
    void AddMonsterAt(int xPosition, int yPosition, MonsterType t);
    Monster* GetMonster(int number);
-   void AddRoom(int xPosition, int yPosition, int width, int height);
+   Room* AddRoom(int xPosition, int yPosition, int width, int height);
    void SetStart(int xPosition, int yPosition);
    void GetStart(int &xPosition, int &yPosition);
    bool IsVisible(int xPosition, int yPosition) const;
+   Room* GetRoom(int xPosition, int yPosition) const;
    int NumberMonsters() const;
    void MoveMonsters(Player* p);
 };
