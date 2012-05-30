@@ -425,6 +425,8 @@ void Game::move (direction dir)
          int xStart, yStart;
          levels[currentLevel]->GetStart(xStart, yStart);
          player->SetPosition(xStart, yStart);
+         player->SetRoom(levels[currentLevel]->ObjectAt(xStart, yStart)->GetRoom());
+         Visibility();
          Game::DrawFresh();
          return;
       }
@@ -434,10 +436,12 @@ void Game::move (direction dir)
          int xStart, yStart;
          levels[currentLevel]->GetStart(xStart, yStart);
          player->SetPosition(xStart, yStart);
+         player->SetRoom(levels[currentLevel]->ObjectAt(xStart, yStart)->GetRoom());
+         Visibility();
          Game::DrawFresh();
          return;
       }      
-   }  
+   }
       
    token temp = levels[currentLevel]->ObjectAt(xNew, yNew)->GetType();
    if (temp == t_black || temp == t_wall) return;   
@@ -480,6 +484,7 @@ void Game::move (direction dir)
          levels[currentLevel]->SetNullAt(x, y);
          levels[currentLevel]->AddLevelObject(under, x, y); 
          if (tok == t_food) gui_message("You picked up some food!");
+         else if (tok == t_diamond) gui_message("You picked up the diamond!");
          else gui_message("You picked up a drink!");         
       }            
       else gui_message("Your inventory is full!");
@@ -547,7 +552,7 @@ void Game::Visibility()
       
       // Check North
       dy--;
-      while (!levels[currentLevel]->ObjectAt(px, dy)->IsVisible() && dy >= 0 && levels[currentLevel]->ObjectAt(px, dy)->GetRoom() == NULL) 
+      while (dy >= 0 && !levels[currentLevel]->ObjectAt(px, dy)->IsVisible() && levels[currentLevel]->ObjectAt(px, dy)->GetRoom() == NULL) 
       {
          levels[currentLevel]->ObjectAt(px, dy)->SetVisible();
          dy--;
@@ -556,7 +561,7 @@ void Game::Visibility()
       // Check South
       dy = py;
       dy++;
-      while (!levels[currentLevel]->ObjectAt(px, dy)->IsVisible() && dy < Y_GRID_SIZE && levels[currentLevel]->ObjectAt(px, dy)->GetRoom() == NULL) 
+      while (dy < Y_GRID_SIZE && !levels[currentLevel]->ObjectAt(px, dy)->IsVisible() && levels[currentLevel]->ObjectAt(px, dy)->GetRoom() == NULL) 
       {
          levels[currentLevel]->ObjectAt(px, dy)->SetVisible();
          dy++;
@@ -564,7 +569,7 @@ void Game::Visibility()
       
       // Check West
       dx--;
-      while (!levels[currentLevel]->ObjectAt(dx, py)->IsVisible() && dx >= 0 && levels[currentLevel]->ObjectAt(dx, py)->GetRoom() == NULL) 
+      while (dx >= 0 && !levels[currentLevel]->ObjectAt(dx, py)->IsVisible() && levels[currentLevel]->ObjectAt(dx, py)->GetRoom() == NULL) 
       {
          levels[currentLevel]->ObjectAt(dx, py)->SetVisible();
          dx--;
@@ -573,7 +578,7 @@ void Game::Visibility()
       // Check East
       dx = px;
       dx++;
-      while (!levels[currentLevel]->ObjectAt(dx, py)->IsVisible() && dx < X_GRID_SIZE && levels[currentLevel]->ObjectAt(dx, py)->GetRoom() == NULL) 
+      while (dx < X_GRID_SIZE && !levels[currentLevel]->ObjectAt(dx, py)->IsVisible() && levels[currentLevel]->ObjectAt(dx, py)->GetRoom() == NULL) 
       {
          levels[currentLevel]->ObjectAt(dx, py)->SetVisible();
          dx++;

@@ -90,6 +90,9 @@ LevelObject* Level::RemoveItem(int xPosition, int yPosition)
 
 bool Level::IsWalkable(int xPosition, int yPosition) const
 {
+   if (!(xPosition < X_GRID_SIZE && yPosition < Y_GRID_SIZE)) return false;
+   else if (!(xPosition >= 0 && yPosition >= 0)) return false;
+
    token t = grid[xPosition][yPosition]->GetType();
    bool tileWalkable = true;
    if (t == t_wall || t == t_black) tileWalkable = false;

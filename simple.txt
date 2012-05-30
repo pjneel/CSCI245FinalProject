@@ -1,6 +1,7 @@
 level;
 
   room 20, 10 at 5, 5;
+    down at 11,10;
     start at 6,6;
     up at 20, 13;
     snake at 10, 10;
