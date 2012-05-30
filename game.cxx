@@ -12,6 +12,7 @@
 #include <cstdlib>
 #include <cstdarg>
 #include <typeinfo>
+#include <cmath>
 using namespace std;
 
 // Utility routine:  called like printf.
@@ -61,8 +62,11 @@ void Game::DrawFresh()
    for (int a = 0; a < levels[currentLevel]->NumberMonsters(); a++)
    {
       Monster* m = levels[currentLevel]->GetMonster(a);
-      if (m->GetType() == M_SNAKE) play_area->SetSquare(m->GetX(), m->GetY(), SNAKE);
-      else if (m->GetType() == M_RAT) play_area->SetSquare(m->GetX(), m->GetY(), RAT);      
+      if (m->IsVisible())
+      {
+         if (m->GetType() == M_SNAKE) play_area->SetSquare(m->GetX(), m->GetY(), SNAKE);
+         else if (m->GetType() == M_RAT) play_area->SetSquare(m->GetX(), m->GetY(), RAT);    
+      }  
    }
    
    // Draw player
@@ -210,8 +214,8 @@ void Game::PlaceAt (token what, int x, int y)
 void Game::start(void)
 {
 
-   playing = true;
-   currentLevel = 0;   
+  playing = true;
+  currentLevel = 0;   
   // The following shows you how to set some elements of the gui.
   // YOU NEED TO REPLACE THIS WITH YOUR REAL START CODE ...
 
@@ -251,15 +255,15 @@ void Game::start(void)
    for (int a = 0; a < levels[currentLevel]->NumberMonsters(); a++)
    {
       Monster* m = levels[currentLevel]->GetMonster(a);
-      if (m->GetType() == M_SNAKE) play_area->SetSquare(m->GetX(), m->GetY(), SNAKE);
-      else if (m->GetType() == M_RAT) play_area->SetSquare(m->GetX(), m->GetY(), RAT); 
-      m->SetRoom(levels[currentLevel]->GetRoom(m->GetX(), m->GetY()));     
+      m->SetRoom(levels[currentLevel]->GetRoom(m->GetX(), m->GetY()));
+      if (levels[currentLevel]->IsVisible(m->GetX(), m->GetY())) m->SetVisible();
+      if (m->IsVisible())
+      {
+         if (m->GetType() == M_SNAKE) play_area->SetSquare(m->GetX(), m->GetY(), SNAKE);
+         else if (m->GetType() == M_RAT) play_area->SetSquare(m->GetX(), m->GetY(), RAT); 
+      }
    }
-   
-   //for(int x = 0; x < 50; x++)
-   //{
-      //for(int y = 0; y < 40; y++) if (debug) printf("Object at %d, %d is %d\n", x, y, levels[currentLevel]->ObjectAt(x,y)->GetType());
-   //} 
+
    DrawFresh();
 }
 
@@ -419,9 +423,14 @@ void Game::move (direction dir)
    else 
    {
       token t = levels[currentLevel]->ObjectAt(xNew, yNew)->GetType();
-      if (dir == UP && t == t_up && currentLevel > 0)
-      {
-         currentLevel--;
+      bool newLevel = true;
+
+      if (dir == UP && t == t_up && currentLevel > 0) currentLevel--;
+      else if (dir == DOWN && t == t_down && currentLevel < MAX_LEVELS) currentLevel++;
+      else newLevel = false;
+
+      if (newLevel)
+      {         
          int xStart, yStart;
          levels[currentLevel]->GetStart(xStart, yStart);
          player->SetPosition(xStart, yStart);
@@ -430,30 +439,43 @@ void Game::move (direction dir)
          Game::DrawFresh();
          return;
       }
-      else if (dir == DOWN && t == t_down && currentLevel < MAX_LEVELS)
-      {
-         currentLevel++;
-         int xStart, yStart;
-         levels[currentLevel]->GetStart(xStart, yStart);
-         player->SetPosition(xStart, yStart);
-         player->SetRoom(levels[currentLevel]->ObjectAt(xStart, yStart)->GetRoom());
-         Visibility();
-         Game::DrawFresh();
-         return;
-      }      
    }
       
    token temp = levels[currentLevel]->ObjectAt(xNew, yNew)->GetType();
-   if (temp == t_black || temp == t_wall) return;   
+   if (temp == t_black || temp == t_wall) return;
+   if (levels[currentLevel]->IsMonsterAt(xNew, yNew))
+   {
+      gui_message("Player attacks monster!");
+      int result = player->Combat(levels[currentLevel]->MonsterAt(xNew, yNew));
+      if (result >= 1) gui_message("Player hit monster for %d damage!", result);
+      else if (result <= -1) gui_message("Monster hit player for %d damage!", abs(result));
+      else gui_message("Both missed.");
+   }
   
 
    player->Move(dir);
+   
+   // Handle hunger
+   player->ChangeHunger(-1);
+   if (player->GetHunger() <= -25) gui_message("You are very hungry.");
+   else if (player->GetHunger() == 0) gui_message("You are hungry.");
+   if (player->GetHunger() < 0 && abs(player->GetHunger()) % 5 == 0 && player->GetHealth() > 1)
+   {
+      gui_message("You have lost 1 health due to hunger.");
+      player->ChangeHealth(-1);
+      char buffer[10];
+      snprintf(buffer, 10, "%d/10", player->GetHealth());
+      gui_health->value(buffer);
+   }
+
    int x = player->GetX();
    int y = player->GetY();
    token tok = levels[currentLevel]->ObjectAt(x, y)->GetType();
    TokenSet(x, y, tok);
    player->SetRoom(levels[currentLevel]->ObjectAt(x, y)->GetRoom());
    play_area->SetSquare(player->GetX(), player->GetY(), PLAYER);
+
+   // Move monsters
    levels[currentLevel]->MoveMonsters(player);
    Visibility();
    if (tok == t_gold)
@@ -501,7 +523,7 @@ void Game::move (direction dir)
          gui_message("You were hit by an arrow trap!");
          char buffer[10];
          snprintf(buffer, 10, "%d/10", player->GetHealth());
-         gui_health->value(buffer);  
+         gui_health->value(buffer);
       }
       else if (tok = t_trap)
       {
@@ -545,7 +567,8 @@ void Game::Visibility()
          }
       }
    }
-   if (player->GetRoom() == NULL) // check the 4 directions to the range of what is visible
+
+   if (player->GetRoom() == NULL || levels[currentLevel]->ObjectAt(px, py)->GetType() == t_path) // check the 4 directions to the range of what is visible
    {
       int dx = px;
       int dy = py;

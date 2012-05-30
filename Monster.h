@@ -21,11 +21,13 @@ public:
    void SetVisible();
    void SetInvisible();
    void Move(direction d);   
-   void ChangeHealth(int h);   
+   void ChangeHealth(int h);
+   int GetHealth() const;
    void Combat(Player p);   
    void SetRoom(Room* r);
    int GetX() const;
    int GetY() const;
+   bool IsVisible() const;
    Room* GetRoom() const;
 private:
    MonsterType type;

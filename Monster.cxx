@@ -40,6 +40,10 @@ void Monster::ChangeHealth(int h)
 {
    health += h;
 }
+int Monster::GetHealth() const
+{
+   return this->health;
+}
 
 void Monster::Combat(Player p)
 {
@@ -59,6 +63,11 @@ int Monster::GetX() const
 int Monster::GetY() const
 {
    return yPosition;
+}
+
+bool Monster::IsVisible() const
+{
+   return this->visible;
 }
 
 Room* Monster::GetRoom() const

@@ -112,6 +112,15 @@ bool Level::IsMonsterAt(int xPosition, int yPosition) const
    return false;   
 }
 
+Monster* Level::MonsterAt(int xPosition, int yPosition) const
+{
+   for(int i = 0; i < monsters.size(); i++)
+   {
+      if (monsters[i]->GetX() == xPosition and monsters[i]->GetY() == yPosition) return monsters[i];
+   }
+   return NULL;
+}
+
 Room* Level::AddRoom(int xPosition, int yPosition, int width, int height)
 {   
    Room* temp = new Room(xPosition, yPosition, width, height);
@@ -162,7 +171,7 @@ void Level::MoveMonsters(Player* p)
    {  
       int xNew = monsters[a]->GetX();
       int yNew = monsters[a]->GetY();
-      if (p->GetRoom() == monsters[a]->GetRoom()) // Check if monster is in the same room as the player.
+      if (monsters[a]->GetRoom() != NULL && p->GetRoom() == monsters[a]->GetRoom()) // Check if monster is in the same room as the player.
       {          
          printf ("Monster #%d - in same room as player.\n", a);
          int move = (rand() % 12) + 1;

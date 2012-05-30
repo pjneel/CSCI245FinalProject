@@ -3,12 +3,15 @@
 // Assignment: 4
 
 #include "Player.h"
+#include "Monster.h"
+#include <time.h>
+#include <cstdlib>
 
 Player::Player()
 {
 	this->health = 10;
 	this->gold = 0;
-	this->hunger = 200;
+	this->hunger = 10;
 	this->xPos = -1;
 	this->yPos = -1;
 	this->moveCount = 0;
@@ -20,7 +23,7 @@ Player::Player(int xPos, int yPos)
 {
 	this->health = 10;
 	this->gold = 0;
-	this->hunger = 200;
+	this->hunger = 10;
 	this->xPos = xPos;
 	this->yPos = yPos;
 	this->moveCount = 0;
@@ -62,9 +65,16 @@ bool Player::Pickup(Item* o)
 	return isPlaced;
 }
 
-void Player::Combat(Monster* m) 
+int Player::Combat(Monster* m) 
 {
-	//I need to research the randomization of this
+   srand(time(NULL)); // initialize random seed
+   int plyr = (rand() % this->health + 1) + 1;
+   int mnstr = (rand() % m->GetHealth()) + 1;
+
+   if(plyr > mnstr) m->ChangeHealth(mnstr - plyr);
+   else if (mnstr > plyr) this->ChangeHealth(plyr - mnstr);
+
+   return plyr - mnstr;
 }
 
 void Player::Consume(Consumable* c)

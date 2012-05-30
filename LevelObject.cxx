@@ -83,7 +83,7 @@ void Trap::Activate(Player* p)
    }
    else if (this->GetType() == t_transport)
    {
-      srand(time(NULL)); // initialize random seed   
+      srand(time(NULL)); // initialize random seed
       int xNew = rand() % X_GRID_SIZE;
       int yNew = rand() % Y_GRID_SIZE;
       

@@ -38,7 +38,7 @@ public:
 	void SetPosition(int x, int y);
 	void Die();
 	bool Pickup(Item* o);
-	void Combat(Monster* m);
+	int Combat(Monster* m);
 	void Consume(Consumable* c);
 	void ChangeGold(int amount);
 	void ChangeHealth(int amount);
