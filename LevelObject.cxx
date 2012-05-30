@@ -75,11 +75,11 @@ Room* LevelObject::GetRoom() const
 Item::Item(token t) : LevelObject(t) {}
 Item::Item(token t, Room* r) : LevelObject(t, r) {}
 
-void Trap::Activate(Player p)
+void Trap::Activate(Player* p)
 {
    if (this->GetType() == t_arrow)
    {
-      p.ChangeHealth(-1);
+      p->ChangeHealth(-1);
    }
    else if (this->GetType() == t_transport)
    {
@@ -87,17 +87,7 @@ void Trap::Activate(Player p)
       int xNew = rand() % X_GRID_SIZE;
       int yNew = rand() % Y_GRID_SIZE;
       
-      // Loop until we find a valid position for the player
-      // I'm commenting this out for now so I can compile
-      // Currently may return an invalid position. - PJN
-      
-      
-      //while (!Level::IsWalkable(xNew, yNew) or Level::IsMonsterAt(xNew, yNew))
-      //{
-      //   xNew = rand() % X_GRID_SIZE;
-      //   yNew = rand() % Y_GRID_SIZE;           
-      //}
-      p.SetPosition(xNew, yNew);
+      p->SetPosition(xNew, yNew);
    }      
 }
 

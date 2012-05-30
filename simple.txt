@@ -7,6 +7,8 @@ level;
     gold at 6,13 and 16, 10;
     drink of sickness at 6,12;
     food at 7,11;
+    trap of arrow at 6,8;
+    trap of transport at 6,9;
   
   room 10, 6 at 40, 0;
     gold at 41,1 and 42,1 and 43,1;

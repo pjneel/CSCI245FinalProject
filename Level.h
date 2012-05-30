@@ -33,6 +33,8 @@ public:
 	void AddLevelObject(LevelObject* lo, int xPosition, int yPosition);
 	LevelObject* ObjectAt(int xPosition, int yPosition) const;
 	LevelObject* RemoveItem(int xPosition, int yPosition);
+	void DeleteAt(int xPosition, int yPosition);
+	void SetNullAt(int xPosition, int yPosition);
    bool IsWalkable(int xPosition, int yPosition) const;
    bool IsMonsterAt(int xPosition, int yPosition) const;
    void AddMonsterAt(int xPosition, int yPosition, MonsterType t);

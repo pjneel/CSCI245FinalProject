@@ -51,9 +51,9 @@ void Player::Die()
 bool Player::Pickup(Item* o) 
 {
 	bool isPlaced = false;
-	for(int i = 0; i < 10 && !isPlaced; i++)
+	for(int i = 0; i < INV_SIZE && !isPlaced; i++)
 	{
-		if (inventory[i] != NULL)
+		if (inventory[i] == NULL)
 		{
 			inventory[i] = o;
 			isPlaced = true;
@@ -85,9 +85,34 @@ void Player::ChangeHealth(int amount)
 	this->health += amount;
 }
 
+void Player::FillHealth()
+{
+   health = MAX_HEALTH;
+}
+
 void Player::SetRoom(Room* r)
 {
    room = r;
+}
+
+void Player::SetNullInv(int n)
+{
+   inventory[n] = NULL;
+}
+
+void Player::ChangeHunger(int n)
+{
+   hunger += n;
+}
+
+void Player::FillHunger()
+{
+   hunger = MAX_HUNGER;
+}
+
+Item* Player::GetItem(int n) const
+{
+   return inventory[n];
 }
 
 int Player::GetGold() const
@@ -108,6 +133,11 @@ int Player::GetY() const
 int Player::GetHunger() const
 {
 	return this->hunger;
+}
+
+int Player::GetHealth() const
+{
+   return this->health;
 }
 
 Room* Player::GetRoom() const

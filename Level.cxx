@@ -29,6 +29,18 @@ Level::Level()
    yStart = -1;     
 }
 
+void Level::DeleteAt(int xPosition, int yPosition)
+{
+   LevelObject* temp = grid[xPosition][yPosition];
+   grid[xPosition][yPosition] = NULL;
+   delete temp;
+}
+
+void Level::SetNullAt(int xPosition, int yPosition)
+{
+   grid[xPosition][yPosition] = NULL;
+}
+
 void Level::AddLevelObject(LevelObject* lo, int xPosition, int yPosition)
 {
    if (grid[xPosition][yPosition] == NULL)

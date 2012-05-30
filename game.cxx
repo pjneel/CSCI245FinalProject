@@ -43,12 +43,16 @@ void Game::DrawFresh()
    {
       for (int y = 0; y < Y_GRID_SIZE; y++)
       {
+         LevelObject* spot = levels[currentLevel]->ObjectAt(x, y);
          if (!levels[currentLevel]->IsVisible(x, y)) play_area->SetSquare(x, y, BLACK);
          else
-         {
-            LevelObject* thing = levels[currentLevel]->ObjectAt(x, y);            
-            tok = thing->GetType();
+         {       
+            tok = spot->GetType();
             TokenSet(x, y, tok);   
+         }
+         if (spot->GetType() == t_arrow || spot->GetType() == t_transport)
+         {
+            if ((!spot->IsVisible()) && spot->GetBeneath()->IsVisible()) TokenSet(x, y, spot->GetBeneath()->GetType());
          }
       }
    }
@@ -256,6 +260,7 @@ void Game::start(void)
    //{
       //for(int y = 0; y < 40; y++) if (debug) printf("Object at %d, %d is %d\n", x, y, levels[currentLevel]->ObjectAt(x,y)->GetType());
    //} 
+   DrawFresh();
 }
 
 void Game::quit(void)
@@ -266,34 +271,121 @@ void Game::quit(void)
 
 void Game::inventory(void)
 {
-  CHECK_PLAYING;
-  gui_message("You are carrying nothing!");
+   CHECK_PLAYING;
+   gui_message("---------------------");
+   for (int n = 0; n < INV_SIZE; n++)
+   {
+      Item* i = player->GetItem(n);
+      if (i == NULL) gui_message("Slot %d - Empty", n + 1);
+      else 
+      {
+         token t = i->GetType();
+         if (t == t_diamond) gui_message("Slot %d - Diamond", n + 1);
+         else if (t == t_food) gui_message("Slot %d - Food", n + 1);
+         else if (t == t_sickness || t == t_health) gui_message("Slot %d - Drink", n + 1);      
+      }
+   }
+   gui_message("---------------------");
 }
 
 void Game::drop(void)
 {
-  CHECK_PLAYING;
+   CHECK_PLAYING; 
+   int x = player->GetX();
+   int y = player->GetY();
+   
+   int index;   
+   int nFields = sscanf(gui_in->value(), "%d", &index);
+   
+   if (nFields == 0 || index < 1 || index > 10)
+   {
+      gui_message("Enter the slot # you want to drop(1-10).");
+      return;
+   }
+   index--; // Decrement to match inventory array indexing
+   
+   Item* i = player->GetItem(index);
+   
+   if (i == NULL) 
+   {
+      gui_message("Slot %d is empty.", index + 1);
+      return;
+   }
+      
+   token t = levels[currentLevel]->ObjectAt(x, y)->GetType();
+   if (t == t_path || t == t_white)
+   {
+      LevelObject* l = (LevelObject*)i;
+      levels[currentLevel]->AddLevelObject(l, x, y);
+      player->SetNullInv(index);
+      if (i->GetType() == t_diamond) gui_message("You dropped the diamond.");
+      else if (i->GetType() == t_food) gui_message("You dropped some food.");
+      else if (i->GetType() == t_sickness || t == t_health) gui_message("You dropped a drink.");
+   }
+   else gui_message("This spot is occupied."); 
 
-  gui_message("drop -> %s", gui_in->value());
+  //gui_message("drop -> %s", gui_in->value());
   // clear the gui_in element
   gui_in->value("");
 }
 
 void Game::eat(void)
 {
-  CHECK_PLAYING;
-
-  gui_message ("eat -> %s", gui_in->value());
-  // clear the gui_in element
-  gui_in->value("");
+   CHECK_PLAYING;
+      
+   for (int n = 0; n < INV_SIZE; n++)   
+   {
+      Item* i = player->GetItem(n);
+      if (i != NULL)
+      {
+         if (i->GetType() == t_food)
+         {
+            player->FillHunger();
+            player->SetNullInv(n);
+            delete i;
+            gui_message("You ate some food.");
+            return;
+         }
+      }
+   }
+   gui_message("You don't have any food.");
 }
 
 void Game::drink(void)
 {
-  CHECK_PLAYING;
+   CHECK_PLAYING;
+   for (int n = 0; n < INV_SIZE; n++)   
+   {
+      Item* i = player->GetItem(n);
+      if (i != NULL)
+      {
+         if (i->GetType() == t_sickness || i->GetType() == t_health)
+         {         
+            if (i->GetType() == t_health)
+            {
+               player->FillHealth();
+               gui_message("You drank a tasty brew");
+            }
+            else 
+            {
+               player->ChangeHealth(-5);
+               gui_message("You drank poison!");
+            }
+            
+            // Update gui health         
+            char buffer[10];
+            snprintf(buffer, 10, "%d/10", player->GetHealth());
+            gui_health->value(buffer);  
+            
+            player->SetNullInv(n);
+            delete i;
+            return;
+         }
+      }
+   }
+   gui_message("You don't have any drinks.");
 
-  gui_message("drink -> %s", gui_in->value());
-  // clear the gui_in element
+
   gui_in->value("");
 }
 
@@ -301,7 +393,6 @@ void Game::move (direction dir)
 {
    CHECK_PLAYING;
    if (debug) printf ("Move %d\n", dir);
-   gui_message("move -> %d", dir);
   
    int xNew = player->GetX();
    int yNew = player->GetY();
@@ -351,30 +442,68 @@ void Game::move (direction dir)
    token temp = levels[currentLevel]->ObjectAt(xNew, yNew)->GetType();
    if (temp == t_black || temp == t_wall) return;   
   
+
+   player->Move(dir);
    int x = player->GetX();
    int y = player->GetY();
    token tok = levels[currentLevel]->ObjectAt(x, y)->GetType();
    TokenSet(x, y, tok);
-   player->Move(dir);
    player->SetRoom(levels[currentLevel]->ObjectAt(x, y)->GetRoom());
    play_area->SetSquare(player->GetX(), player->GetY(), PLAYER);
    levels[currentLevel]->MoveMonsters(player);
    Visibility();
    if (tok == t_gold)
    {
+      
       LevelObject* money = levels[currentLevel]->ObjectAt(x, y);
       Gold* coins = (Gold*)money;
-      player->ChangeGold(coins->GetGold());
-      levels[currentLevel]->AddLevelObject(money->GetBeneath(), x, y);
-      delete money;
+      LevelObject* under = money->GetBeneath();
+      int amount = coins->GetGold();
+      player->ChangeGold(amount);
+      levels[currentLevel]->DeleteAt(x,y);
+      levels[currentLevel]->AddLevelObject(under, x, y);
+            
+      char buffer[10];
+      snprintf(buffer, 10, "%d", player->GetGold());
+      gui_gold->value(buffer);
+      gui_message("You found %d gold!", amount);
+   }
+   else if (tok == t_food || tok == t_sickness || tok == t_health || tok == t_diamond)
+   {
+      if (debug) printf ("Item found.\n");
+      LevelObject* l = levels[currentLevel]->ObjectAt(x, y);
+      Item* i = (Item*)l;
+      if (player->Pickup(i))
+      {         
+         if (debug) printf ("Item picked up.\n");
+         LevelObject* under = l->GetBeneath();
+         levels[currentLevel]->SetNullAt(x, y);
+         levels[currentLevel]->AddLevelObject(under, x, y); 
+         if (tok == t_food) gui_message("You picked up some food!");
+         else gui_message("You picked up a drink!");         
+      }            
+      else gui_message("Your inventory is full!");
+   }
+   else if (tok == t_arrow || tok == t_transport )
+   {
+      LevelObject* l = levels[currentLevel]->ObjectAt(x, y);
+      Trap* t = (Trap*)l;
+      l->SetVisible();      
+      t->Activate(player);
       
-      if (debug) printf ("Gold %d\n", player->GetGold());
-      
-      // gui_gold wants a char*, the following code does not work, itoa not available on the Unix machines.
-      
-      /*char buffer[10];
-      snprintf(buffer, 10, %d, player->GetGold());
-      gui_gold->value(buffer);*/      
+      if (tok == t_arrow)
+      {
+         gui_message("You were hit by an arrow trap!");
+         char buffer[10];
+         snprintf(buffer, 10, "%d/10", player->GetHealth());
+         gui_health->value(buffer);  
+      }
+      else if (tok = t_trap)
+      {
+         while(!levels[currentLevel]->IsWalkable(player->GetX(), player->GetY())) t->Activate(player); 
+         gui_message("You stumbled into a transport trap!");
+      }
+      Visibility();     
    }
    
    Game::DrawFresh();
@@ -384,24 +513,28 @@ void Game::Visibility()
 {
    int px = player->GetX();
    int py = player->GetY();
-   LevelObject* thing = levels[currentLevel]->ObjectAt(px, py);
+   LevelObject* standingAt = levels[currentLevel]->ObjectAt(px, py);
    
-   if (!thing->IsVisible()) // if the object where the player is standing is not visible
+   if (!standingAt->IsVisible()) // if the object where the player is standing is not visible
    {
-      thing->SetVisible();
-      if (thing->GetRoom() != NULL) // if in a room
+      standingAt->SetVisible();
+      if (standingAt->GetRoom() != NULL) // if in a room
       {
          // Set LevelObjects associated with this room to visible
-         Room* r = thing->GetRoom();
+         Room* r = standingAt->GetRoom();
          for (int x = 0; x < X_GRID_SIZE; x++)
          {
             for (int y = 0; y < Y_GRID_SIZE; y++)
             {
-               if (levels[currentLevel]->GetRoom(x, y) == r) 
+               LevelObject* spot = levels[currentLevel]->ObjectAt(x,y);
+               if (levels[currentLevel]->GetRoom(x, y) == r)     
                {
-                  LevelObject* thing2 = levels[currentLevel]->ObjectAt(x, y);
-                  thing2->SetVisible();
-                  if (thing2->GetBeneath() != NULL) thing2->GetBeneath()->SetVisible();                  
+                  if (spot->GetType() != t_arrow && spot->GetType() != t_transport) 
+                  {
+                     LevelObject* spot = levels[currentLevel]->ObjectAt(x, y);
+                     spot->SetVisible();
+                  }
+                  if (spot->GetBeneath() != NULL) spot->GetBeneath()->SetVisible();                  
                }
             }
          }

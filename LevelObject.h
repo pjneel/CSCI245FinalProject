@@ -46,7 +46,7 @@ class Trap : public LevelObject
 public:
    Trap(token t);
    Trap(token t, Room* r);
-   void Activate(Player p); 
+   void Activate(Player* p); 
 };
 
 

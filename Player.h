@@ -8,6 +8,11 @@
 #include "LevelObject.h"
 #include "game.h" // for direction enumeration
 
+const int INV_SIZE = 10;
+const int MAX_HEALTH = 10;
+const int MAX_HUNGER = 200;
+
+
 //class LevelObject;
 class Monster;
 //class Consumable;
@@ -19,7 +24,7 @@ class Player
 private:
 	int health;
 	int gold;
-	Item* inventory[10];
+	Item* inventory[INV_SIZE];
 	int xPos;
 	int yPos;
 	int hunger;
@@ -37,11 +42,17 @@ public:
 	void Consume(Consumable* c);
 	void ChangeGold(int amount);
 	void ChangeHealth(int amount);
+	void FillHealth();
+	void ChangeHunger(int amount);
+	void FillHunger();
 	void SetRoom(Room* r);
+	void SetNullInv(int n);
+	Item* GetItem(int n) const;
 	int GetGold() const;
 	int GetX() const;
 	int GetY() const;
 	int GetHunger() const;
+	int GetHealth() const;
 	Room* GetRoom() const;
 	
 	//LevelObject* GetBeneath();
