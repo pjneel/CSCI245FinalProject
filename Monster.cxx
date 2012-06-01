@@ -52,14 +52,18 @@ int Monster::GetHealth() const
 
 int Monster::Combat(Player* p)
 {
-   srand(time(NULL)); // initialize random seed
-   int mnstr = (rand() % (this->health + 1)) + 1;
-   int plyr = (rand() % p->GetHealth()) + 1;
+   if (p->GetHealth > 0)
+   {
+      srand(time(NULL)); // initialize random seed
+      int mnstr = (rand() % (this->health + 1)) + 1;
+      int plyr = (rand() % p->GetHealth()) + 1;
 
-   if(plyr > mnstr) this->ChangeHealth(mnstr - plyr);
-   else if (mnstr > plyr) p->ChangeHealth(plyr - mnstr);
+      if(plyr > mnstr) this->ChangeHealth(mnstr - plyr);
+      else if (mnstr > plyr) p->ChangeHealth(plyr - mnstr);
 
-   return mnstr - plyr;
+      return mnstr - plyr;
+   }
+   return -9999;
 }
 
 void Monster::SetRoom(Room* r)

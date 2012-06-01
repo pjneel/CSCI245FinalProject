@@ -35,6 +35,7 @@ class Game {
   // routines to play the game
 
    void start(void);
+   void End();
    void quit(void);
    void inventory(void);
    void drop(void);

@@ -9,6 +9,7 @@
 #include "Player.h"
 #include "PlayArea.h"
 #include "lexfile.h" // for token enumeration
+#include "game.h"
 
 //#include <typeinfo>
 #include <time.h> // for seeding randomization
@@ -165,7 +166,7 @@ int Level::NumberMonsters() const
    return monsters.size();
 }
 
-void Level::MoveMonsters(Player* p)
+int Level::MoveMonsters(Player* p)
 {
    srand(time(NULL)); // initialize random seed  
    for (int a = 0; a < monsters.size(); a++)
@@ -174,7 +175,7 @@ void Level::MoveMonsters(Player* p)
       int yNew = monsters[a]->GetY();
       
       bool combat = false;
-      gui_message("Player at %d, %d. Monster at %d, %d.", p->GetX(), p->GetY(), xNew, yNew);
+      //gui_message("Player at %d, %d. Monster at %d, %d.", p->GetX(), p->GetY(), xNew, yNew);
       if (xNew == p->GetX() - 1 && yNew == p->GetY()) combat = true;
       else if (xNew == p->GetX() + 1 && yNew == p->GetY()) combat = true;
       else if (yNew == p->GetY() - 1 && xNew == p->GetX()) combat = true;
@@ -185,9 +186,30 @@ void Level::MoveMonsters(Player* p)
          gui_message("Monster attacks player!");
          if (debug) printf ("Monster attacks player!\n");
          int result = monsters[a]->Combat(p);
-         if (result >= 1) gui_message("Monster hit player for %d damage!", result);
-         else if (result <= -1) gui_message("Player hit monster for %d damage!", abs(result));
-         else gui_message("Both missed.");
+         if (result >= 1) 
+         {
+            gui_message("Monster hit player for %d damage!", result);
+            char buffer[10];
+            snprintf(buffer, 10, "%d/10", p->GetHealth());
+            gui_health->value(buffer);
+         }
+         
+         else if (result <= -1 && result != -9999)
+         {
+            gui_message("Player hit monster for %d damage!", abs(result));
+            if (monsters[a]->GetHealth() <= 0)
+            {
+               gui_message("Monster is dead!");
+               delete monsters[a];
+               monsters[a] = NULL;
+            }
+         }
+         else if (result == -9999) return result;
+         else 
+         {
+            gui_message("Both missed.");
+            return 0;
+         }
       }
       else if (monsters[a]->GetRoom() != NULL && p->GetRoom() == monsters[a]->GetRoom()) // Check if monster is in the same room as the player.
       {

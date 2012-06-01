@@ -36,6 +36,11 @@ void TokenSet(int x, int y, token tok)
    else if (tok == t_black) play_area->SetSquare(x, y, BLACK);      
 }
 
+void Game::End()
+{
+   if (player->GetHealth() <= 0) gui_message("You have died. GAME OVER.");
+}
+
 void Game::DrawFresh()
 {  
    // Draw level
@@ -449,7 +454,14 @@ void Game::move (direction dir)
       if (debug) printf ("Player attacks monster!\n");
       int result = player->Combat(levels[currentLevel]->MonsterAt(xNew, yNew));
       if (result >= 1) gui_message("Player hit monster for %d damage!", result);
-      else if (result <= -1) gui_message("Monster hit player for %d damage!", abs(result));
+      else if (result <= -1) 
+      {
+         gui_message("Monster hit player for %d damage!", abs(result));
+         char buffer[10];
+         snprintf(buffer, 10, "%d/10", player->GetHealth());
+         gui_health->value(buffer);
+      }         
+      else if (result == -9999) End();       
       else gui_message("Both missed.");
    }
    else

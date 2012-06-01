@@ -17,7 +17,6 @@ Player::Player()
 	this->moveCount = 0;
 	for(int i = 0; i < 10; i++) inventory[i] = NULL;
 	this->room = NULL;
-	//this->beneath = NULL;
 }
 Player::Player(int xPos, int yPos)
 {
@@ -29,7 +28,6 @@ Player::Player(int xPos, int yPos)
 	this->moveCount = 0;
 	for(int i = 0; i < 10; i++) inventory[i] = NULL;
 	this->room = NULL;
-	//this->beneath = NULL;
 }
 
 void Player::Move(direction d)
@@ -67,14 +65,18 @@ bool Player::Pickup(Item* o)
 
 int Player::Combat(Monster* m) 
 {
-   srand(time(NULL)); // initialize random seed
-   int plyr = (rand() % (this->health + 1)) + 1;
-   int mnstr = (rand() % m->GetHealth()) + 1;
+   if (this->heatlh > 0)
+   {
+      srand(time(NULL)); // initialize random seed
+      int plyr = (rand() % (this->health + 1)) + 1;
+      int mnstr = (rand() % m->GetHealth()) + 1;
 
-   if(plyr > mnstr) m->ChangeHealth(mnstr - plyr);
-   else if (mnstr > plyr) this->ChangeHealth(plyr - mnstr);
+      if(plyr > mnstr) m->ChangeHealth(mnstr - plyr);
+      else if (mnstr > plyr) this->ChangeHealth(plyr - mnstr);
 
-   return plyr - mnstr;
+      return plyr - mnstr;
+   }
+   return -9999;
 }
 
 void Player::Consume(Consumable* c)
