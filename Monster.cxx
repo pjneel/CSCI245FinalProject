@@ -5,12 +5,17 @@
 #include "Monster.h"
 #include "Player.h"
 
-Monster::Monster(int x, int y, MonsterType t)
+#include <time.h>
+#include <cstdlib>
+
+Monster::Monster(int x, int y, MonsterType t, int level)
 {
+   srand(time(NULL));
    xPosition = x;
    yPosition = y;
    type = t;
    visible = false;
+   health = 7 + (rand() % (level + 1)) + 1;
 }
 
 MonsterType Monster::GetType() const
@@ -45,9 +50,16 @@ int Monster::GetHealth() const
    return this->health;
 }
 
-void Monster::Combat(Player p)
+int Monster::Combat(Player* p)
 {
-   // Combat code goes here
+   srand(time(NULL)); // initialize random seed
+   int mnstr = (rand() % (this->health + 1)) + 1;
+   int plyr = (rand() % p->GetHealth()) + 1;
+
+   if(plyr > mnstr) this->ChangeHealth(mnstr - plyr);
+   else if (mnstr > plyr) p->ChangeHealth(plyr - mnstr);
+
+   return mnstr - plyr;
 }
 
 void Monster::SetRoom(Room* r)

@@ -38,7 +38,7 @@ public:
    bool IsWalkable(int xPosition, int yPosition) const;
    bool IsMonsterAt(int xPosition, int yPosition) const;
    Monster* MonsterAt(int xPosition, int yPosition) const;
-   void AddMonsterAt(int xPosition, int yPosition, MonsterType t);
+   void AddMonsterAt(int xPosition, int yPosition, MonsterType t, int level);
    Monster* GetMonster(int number);
    Room* AddRoom(int xPosition, int yPosition, int width, int height);
    void SetStart(int xPosition, int yPosition);

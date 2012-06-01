@@ -13,6 +13,7 @@
 //#include <typeinfo>
 #include <time.h> // for seeding randomization
 #include <cstdlib> // for random numbers??
+#include "gui.h"
 
 using namespace std;
 
@@ -149,9 +150,9 @@ Room* Level::GetRoom(int xPosition, int yPosition) const
    return ObjectAt(xPosition, yPosition)->LevelObject::GetRoom();
 }
 
-void Level::AddMonsterAt(int xPosition, int yPosition, MonsterType t)
+void Level::AddMonsterAt(int xPosition, int yPosition, MonsterType t, int level)
 {
-   monsters.push_back(new Monster(xPosition, yPosition, t));
+   monsters.push_back(new Monster(xPosition, yPosition, t, level));
 }
 
 Monster* Level::GetMonster(int number)
@@ -171,14 +172,31 @@ void Level::MoveMonsters(Player* p)
    {  
       int xNew = monsters[a]->GetX();
       int yNew = monsters[a]->GetY();
-      if (monsters[a]->GetRoom() != NULL && p->GetRoom() == monsters[a]->GetRoom()) // Check if monster is in the same room as the player.
-      {          
+      
+      bool combat = false;
+      gui_message("Player at %d, %d. Monster at %d, %d.", p->GetX(), p->GetY(), xNew, yNew);
+      if (xNew == p->GetX() - 1 && yNew == p->GetY()) combat = true;
+      else if (xNew == p->GetX() + 1 && yNew == p->GetY()) combat = true;
+      else if (yNew == p->GetY() - 1 && xNew == p->GetX()) combat = true;
+      else if (yNew == p->GetY() + 1 && xNew == p->GetX()) combat = true;
+      
+      if (combat)
+      {
+         gui_message("Monster attacks player!");
+         if (debug) printf ("Monster attacks player!\n");
+         int result = monsters[a]->Combat(p);
+         if (result >= 1) gui_message("Monster hit player for %d damage!", result);
+         else if (result <= -1) gui_message("Player hit monster for %d damage!", abs(result));
+         else gui_message("Both missed.");
+      }
+      else if (monsters[a]->GetRoom() != NULL && p->GetRoom() == monsters[a]->GetRoom()) // Check if monster is in the same room as the player.
+      {
          printf ("Monster #%d - in same room as player.\n", a);
          int move = (rand() % 12) + 1;
          if (move == 1) 
          {
             yNew--;
-            if (IsWalkable(xNew, yNew)) monsters[a]->Move(NORTH);            
+            if (IsWalkable(xNew, yNew)) monsters[a]->Move(NORTH);    
          }
          else if (move == 2) 
          {

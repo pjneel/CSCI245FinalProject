@@ -16,14 +16,14 @@ enum MonsterType {M_RAT, M_SNAKE};
 class Monster
 {
 public:
-   Monster(int x, int y, MonsterType t);
+   Monster(int x, int y, MonsterType t, int level);
    MonsterType GetType() const;   
    void SetVisible();
    void SetInvisible();
    void Move(direction d);   
    void ChangeHealth(int h);
    int GetHealth() const;
-   void Combat(Player p);   
+   int Combat(Player* p);   
    void SetRoom(Room* r);
    int GetX() const;
    int GetY() const;

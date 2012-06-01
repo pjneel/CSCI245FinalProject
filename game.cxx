@@ -205,8 +205,8 @@ void Game::PlaceAt (token what, int x, int y)
    else if (what == t_sickness) lvl->AddLevelObject(new Consumable(t_sickness), x, y);
    else if (what == t_health) lvl->AddLevelObject(new Consumable(t_health), x, y);
    else if (what == t_food) lvl->AddLevelObject(new Consumable(t_food), x, y);
-   else if (what == t_snake) lvl->AddMonsterAt(x, y, M_SNAKE);
-   else if (what == t_rat) lvl->AddMonsterAt(x, y, M_RAT); 
+   else if (what == t_snake) lvl->AddMonsterAt(x, y, M_SNAKE, currentLevel);
+   else if (what == t_rat) lvl->AddMonsterAt(x, y, M_RAT, currentLevel); 
 }
 
 // Routines to play the game
@@ -446,14 +446,16 @@ void Game::move (direction dir)
    if (levels[currentLevel]->IsMonsterAt(xNew, yNew))
    {
       gui_message("Player attacks monster!");
+      if (debug) printf ("Player attacks monster!\n");
       int result = player->Combat(levels[currentLevel]->MonsterAt(xNew, yNew));
       if (result >= 1) gui_message("Player hit monster for %d damage!", result);
       else if (result <= -1) gui_message("Monster hit player for %d damage!", abs(result));
       else gui_message("Both missed.");
    }
-  
-
-   player->Move(dir);
+   else
+   {
+      player->Move(dir);
+   }
    
    // Handle hunger
    player->ChangeHunger(-1);
@@ -477,6 +479,7 @@ void Game::move (direction dir)
 
    // Move monsters
    levels[currentLevel]->MoveMonsters(player);
+   
    Visibility();
    if (tok == t_gold)
    {
