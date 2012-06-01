@@ -10,6 +10,7 @@ level;
     food at 7,11;
     trap of arrow at 6,8;
     trap of transport at 6,9;
+    diamond at 11,11;
   
   room 10, 6 at 40, 0;
     gold at 41,1 and 42,1 and 43,1;
@@ -39,6 +40,7 @@ level;
 
   room 6,5 at 40,15;
     start at 44,17;
+    up at 43,17;
   
   room 4,4 at 0,0;
     diamond at 1,1;

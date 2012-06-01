@@ -25,7 +25,6 @@ class Level
 private:
 	LevelObject* grid[X_GRID_SIZE][Y_GRID_SIZE];
 	vector<Monster*> monsters;
-	//vector<Room*> rooms;
 	int xStart;
 	int yStart;
 public:

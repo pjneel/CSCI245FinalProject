@@ -166,11 +166,11 @@ int Level::NumberMonsters() const
    return monsters.size();
 }
 
-int Level::MoveMonsters(Player* p)
+void Level::MoveMonsters(Player* p)
 {
    srand(time(NULL)); // initialize random seed  
    for (int a = 0; a < monsters.size(); a++)
-   {  
+   {        
       int xNew = monsters[a]->GetX();
       int yNew = monsters[a]->GetY();
       
@@ -192,23 +192,22 @@ int Level::MoveMonsters(Player* p)
             char buffer[10];
             snprintf(buffer, 10, "%d/10", p->GetHealth());
             gui_health->value(buffer);
+            if (p->GetHealth() < 1) return;            
          }
          
-         else if (result <= -1 && result != -9999)
+         else if (result <= -1)
          {
             gui_message("Player hit monster for %d damage!", abs(result));
-            if (monsters[a]->GetHealth() <= 0)
+            if (monsters[a]->GetHealth() < 1)
             {
                gui_message("Monster is dead!");
                delete monsters[a];
-               monsters[a] = NULL;
+               monsters.erase(monsters.begin()+a);
             }
          }
-         else if (result == -9999) return result;
          else 
          {
             gui_message("Both missed.");
-            return 0;
          }
       }
       else if (monsters[a]->GetRoom() != NULL && p->GetRoom() == monsters[a]->GetRoom()) // Check if monster is in the same room as the player.

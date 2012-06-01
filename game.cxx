@@ -38,7 +38,12 @@ void TokenSet(int x, int y, token tok)
 
 void Game::End()
 {
-   if (player->GetHealth() <= 0) gui_message("You have died. GAME OVER.");
+   if (player->GetHealth() < 1) gui_message("You have died. GAME OVER.");
+   if (currentLevel < 0 && player->HasDiamond())
+   {
+      if (debug) printf("You won the game!!");
+      gui_message("You won the game!!");
+   }
 }
 
 void Game::DrawFresh()
@@ -429,11 +434,21 @@ void Game::move (direction dir)
    {
       token t = levels[currentLevel]->ObjectAt(xNew, yNew)->GetType();
       bool newLevel = true;
-
+      if (debug) printf("CurrentLevel is: %d\n", currentLevel);  
+      // When trying to end the game with the diamond this is the last output before seg fault
+      
       if (dir == UP && t == t_up && currentLevel > 0) currentLevel--;
+      else if (dir == UP && t == t_up && currentLevel == 0) 
+      {
+         if (debug) printf ("Ending the game.");
+         currentLevel--;
+         End();
+      }
       else if (dir == DOWN && t == t_down && currentLevel < MAX_LEVELS) currentLevel++;
       else newLevel = false;
-
+      
+      if (debug) printf("Didn't end the game.");
+      
       if (newLevel)
       {         
          int xStart, yStart;
@@ -451,7 +466,6 @@ void Game::move (direction dir)
    if (levels[currentLevel]->IsMonsterAt(xNew, yNew))
    {
       gui_message("Player attacks monster!");
-      if (debug) printf ("Player attacks monster!\n");
       int result = player->Combat(levels[currentLevel]->MonsterAt(xNew, yNew));
       if (result >= 1) gui_message("Player hit monster for %d damage!", result);
       else if (result <= -1) 
@@ -460,8 +474,8 @@ void Game::move (direction dir)
          char buffer[10];
          snprintf(buffer, 10, "%d/10", player->GetHealth());
          gui_health->value(buffer);
-      }         
-      else if (result == -9999) End();       
+         if (player->GetHealth() < 1) End();
+      }               
       else gui_message("Both missed.");
    }
    else
@@ -491,11 +505,11 @@ void Game::move (direction dir)
 
    // Move monsters
    levels[currentLevel]->MoveMonsters(player);
+   if (player->GetHealth() < 1) End();
    
    Visibility();
    if (tok == t_gold)
-   {
-      
+   {      
       LevelObject* money = levels[currentLevel]->ObjectAt(x, y);
       Gold* coins = (Gold*)money;
       LevelObject* under = money->GetBeneath();

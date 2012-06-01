@@ -30,7 +30,6 @@ private:
 	int hunger;
 	int moveCount;
 	Room* room;
-	//LevelObject* beneath;
 public:
 	Player();
 	Player(int xPos, int yPos);
@@ -54,8 +53,7 @@ public:
 	int GetHunger() const;
 	int GetHealth() const;
 	Room* GetRoom() const;
-	
-	//LevelObject* GetBeneath();
+	bool HasDiamond() const;	
 };
 
 #endif

@@ -65,7 +65,7 @@ bool Player::Pickup(Item* o)
 
 int Player::Combat(Monster* m) 
 {
-   if (this->heatlh > 0)
+   if (this->health > 0)
    {
       srand(time(NULL)); // initialize random seed
       int plyr = (rand() % (this->health + 1)) + 1;
@@ -154,6 +154,22 @@ int Player::GetHealth() const
 
 Room* Player::GetRoom() const
 {
-	return this->room;
+	return this->room;	
+}
+
+bool Player::HasDiamond() const
+{
+   for (int n = 0; n < INV_SIZE; n++)   
+   {      
+      Item* i = GetItem(n);
+      if (i != NULL)
+      {
+         if (i->GetType() == t_diamond)
+         {
+            return true;
+         }
+      }
+   }
+   return false;
 }
 
