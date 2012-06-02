@@ -19,6 +19,7 @@ using namespace std;
 
 const int MAX_LEVELS = 10;
 
+// TokenSet - Set square in position x, y to tok
 void TokenSet(int x, int y, token tok)
 {
    if (tok == t_gold) play_area->SetSquare(x, y, GOLD);
@@ -36,16 +37,38 @@ void TokenSet(int x, int y, token tok)
    else if (tok == t_black) play_area->SetSquare(x, y, BLACK);      
 }
 
+// End - Finish the game
 void Game::End()
 {
    if (player->GetHealth() < 1) gui_message("You have died. GAME OVER.");
+   
+   // Player wins.
    if (currentLevel < 0 && player->HasDiamond())
    {
       if (debug) printf("You won the game!!");
       gui_message("You won the game!!");
    }
+   // Player provided no diamond but exited. Player loses.
+   else
+   {
+      if (debug) printf("You don't have the diamond. You lose.\n");
+      gui_message("You have no diamond. You lose.");
+   }
+   
+   // Destroy all objects for each level
+   for(int i = 0; i < MAX_LEVELS; i++)
+   {
+      if (levels[i] != NULL)
+      {
+         if (debug) printf("Deleting level %d...", i);
+         delete levels[i];
+      }
+   }
+   
+   playing = false;
 }
 
+// DrawFresh - Update the game display from grid
 void Game::DrawFresh()
 {  
    // Draw level
@@ -101,6 +124,7 @@ void Game::error(char *fmt, ...)
 
 // Routines to build the game
 
+// SetBuildLevel - Build a level
 void Game::SetBuildLevel (int newlevel)
 { 
    if (debug) printf ("SetBuildLevel -> %d.\n", newlevel);
@@ -112,11 +136,13 @@ void Game::SetBuildLevel (int newlevel)
    {
       for (int y = 0; y < Y_GRID_SIZE; y++)
       {
+         // Initialize each grid position to black
          levels[currentLevel]->AddLevelObject(black, x, y);
       }    
    }  
 }
 
+// NewRoom - Create a new room
 void Game::NewRoom (int x, int y, int width, int height)
 {
    if (debug) printf ("NewRoom(%d,%d,%d,%d)\n", x, y, width, height);      
@@ -146,6 +172,7 @@ void Game::NewRoom (int x, int y, int width, int height)
    }   
 }
 
+// NewPath - Build a path on the grid
 void Game::NewPath (int x1, int y1, int x2, int y2)
 {
    if (debug) printf ("NewPath: (%d,%d) -> (%d,%d)\n", x1, y1, x2, y2);
@@ -192,17 +219,17 @@ void Game::NewPath (int x1, int y1, int x2, int y2)
    }
 }  
 
+// SetStart - Set start position for current level
 void Game::SetStart (int x, int y)
 {
   if (debug) printf ("Level starts at (%d,%d)\n", x, y);
   levels[currentLevel]->SetStart(x, y);
 }
 
+// PlaceAt - Place an object on the grid
 void Game::PlaceAt (token what, int x, int y)
 {
    if (debug) printf ("Place %s at (%d,%d)\n", tok_name[what], x, y);
-   //if (debug && what == t_diamond)
-   //printf ("Place the diamond at (%d,%d)...\n", x, y);
 
    Level* lvl = levels[currentLevel];
    if (what == t_diamond) lvl->AddLevelObject(new Diamond(), x, y);
@@ -221,13 +248,12 @@ void Game::PlaceAt (token what, int x, int y)
 
 // Routines to play the game
 
+// Start - Start the game
 void Game::start(void)
 {
 
   playing = true;
-  currentLevel = 0;   
-  // The following shows you how to set some elements of the gui.
-  // YOU NEED TO REPLACE THIS WITH YOUR REAL START CODE ...
+  currentLevel = 0;
 
   gui_level->value("1");
   gui_health->value("10/10");
@@ -283,6 +309,7 @@ void Game::quit(void)
     exit(0);
 }
 
+// inventory - Display a the inventory list in the game message space.
 void Game::inventory(void)
 {
    CHECK_PLAYING;
@@ -302,6 +329,7 @@ void Game::inventory(void)
    gui_message("---------------------");
 }
 
+// drop - Take an integer from gui_in and drop the corresponding object from inventory.
 void Game::drop(void)
 {
    CHECK_PLAYING; 
@@ -338,11 +366,11 @@ void Game::drop(void)
    }
    else gui_message("This spot is occupied."); 
 
-  //gui_message("drop -> %s", gui_in->value());
   // clear the gui_in element
   gui_in->value("");
 }
 
+// eat - Eat the first food found in the inventory.
 void Game::eat(void)
 {
    CHECK_PLAYING;
@@ -365,6 +393,7 @@ void Game::eat(void)
    gui_message("You don't have any food.");
 }
 
+// drink - Drink the first drink found in the inventory.
 void Game::drink(void)
 {
    CHECK_PLAYING;
@@ -403,6 +432,7 @@ void Game::drink(void)
   gui_in->value("");
 }
 
+// move - Moves the player, initiates combat, moves monsters
 void Game::move (direction dir)
 {
    CHECK_PLAYING;
@@ -434,23 +464,29 @@ void Game::move (direction dir)
    {
       token t = levels[currentLevel]->ObjectAt(xNew, yNew)->GetType();
       bool newLevel = true;
-      if (debug) printf("CurrentLevel is: %d\n", currentLevel);  
-      // When trying to end the game with the diamond this is the last output before seg fault
+      if (debug) printf("CurrentLevel is: %d Token is: %d dir is: %d\n", currentLevel, t, dir);  
       
-      if (dir == UP && t == t_up && currentLevel > 0) currentLevel--;
+      if (dir == UP && t == t_up && currentLevel > 0) 
+      {
+         currentLevel--;
+      }
       else if (dir == UP && t == t_up && currentLevel == 0) 
       {
-         if (debug) printf ("Ending the game.");
-         currentLevel--;
+         currentLevel = -1;
          End();
+         return;
       }
-      else if (dir == DOWN && t == t_down && currentLevel < MAX_LEVELS) currentLevel++;
-      else newLevel = false;
-      
-      if (debug) printf("Didn't end the game.");
-      
+      else if (dir == DOWN && t == t_down && currentLevel < MAX_LEVELS)
+      {
+          currentLevel++;
+      }
+      else newLevel = false;      
+     
       if (newLevel)
-      {         
+      {
+         char buffer[10];
+         snprintf(buffer, 10, "%d", currentLevel + 1);
+         gui_level->value(buffer);
          int xStart, yStart;
          levels[currentLevel]->GetStart(xStart, yStart);
          player->SetPosition(xStart, yStart);
@@ -460,17 +496,23 @@ void Game::move (direction dir)
          return;
       }
    }
-      
    token temp = levels[currentLevel]->ObjectAt(xNew, yNew)->GetType();
    if (temp == t_black || temp == t_wall) return;
+   
+   // Check for combat with a monster
    if (levels[currentLevel]->IsMonsterAt(xNew, yNew))
    {
       gui_message("Player attacks monster!");
       int result = player->Combat(levels[currentLevel]->MonsterAt(xNew, yNew));
-      if (result >= 1) gui_message("Player hit monster for %d damage!", result);
+      if (result >= 1)
+      {
+         gui_message("Player hit monster for %d damage!", result);
+         if (levels[currentLevel]->MonsterAt(xNew, yNew)->GetHealth() < 1) levels[currentLevel]->RemoveMonster(levels[currentLevel]->MonsterAt(xNew, yNew));
+      }
       else if (result <= -1) 
       {
          gui_message("Monster hit player for %d damage!", abs(result));
+
          char buffer[10];
          snprintf(buffer, 10, "%d/10", player->GetHealth());
          gui_health->value(buffer);
@@ -525,12 +567,10 @@ void Game::move (direction dir)
    }
    else if (tok == t_food || tok == t_sickness || tok == t_health || tok == t_diamond)
    {
-      if (debug) printf ("Item found.\n");
       LevelObject* l = levels[currentLevel]->ObjectAt(x, y);
       Item* i = (Item*)l;
       if (player->Pickup(i))
       {         
-         if (debug) printf ("Item picked up.\n");
          LevelObject* under = l->GetBeneath();
          levels[currentLevel]->SetNullAt(x, y);
          levels[currentLevel]->AddLevelObject(under, x, y); 
@@ -565,6 +605,7 @@ void Game::move (direction dir)
    Game::DrawFresh();
 }
 
+// Visibility - Checks what should be visible to the player.
 void Game::Visibility()
 {
    int px = player->GetX();
@@ -596,7 +637,8 @@ void Game::Visibility()
          }
       }
    }
-
+   
+   // Sets paths in the players line of set to visible.
    if (player->GetRoom() == NULL || levels[currentLevel]->ObjectAt(px, py)->GetType() == t_path) // check the 4 directions to the range of what is visible
    {
       int dx = px;
@@ -604,7 +646,8 @@ void Game::Visibility()
       
       // Check North
       dy--;
-      while (dy >= 0 && !levels[currentLevel]->ObjectAt(px, dy)->IsVisible() && levels[currentLevel]->ObjectAt(px, dy)->GetRoom() == NULL) 
+      while (dy >= 0 && !levels[currentLevel]->ObjectAt(px, dy)->IsVisible() && (levels[currentLevel]->ObjectAt(px, dy)->GetRoom() == NULL
+         || levels[currentLevel]->ObjectAt(px, dy)->GetType() == t_path)) 
       {
          levels[currentLevel]->ObjectAt(px, dy)->SetVisible();
          dy--;
@@ -613,7 +656,8 @@ void Game::Visibility()
       // Check South
       dy = py;
       dy++;
-      while (dy < Y_GRID_SIZE && !levels[currentLevel]->ObjectAt(px, dy)->IsVisible() && levels[currentLevel]->ObjectAt(px, dy)->GetRoom() == NULL) 
+      while (dy < Y_GRID_SIZE && !levels[currentLevel]->ObjectAt(px, dy)->IsVisible() && (levels[currentLevel]->ObjectAt(px, dy)->GetRoom() == NULL
+      || levels[currentLevel]->ObjectAt(px, dy)->GetType() == t_path))
       {
          levels[currentLevel]->ObjectAt(px, dy)->SetVisible();
          dy++;
@@ -621,7 +665,8 @@ void Game::Visibility()
       
       // Check West
       dx--;
-      while (dx >= 0 && !levels[currentLevel]->ObjectAt(dx, py)->IsVisible() && levels[currentLevel]->ObjectAt(dx, py)->GetRoom() == NULL) 
+      while (dx >= 0 && !levels[currentLevel]->ObjectAt(dx, py)->IsVisible() && (levels[currentLevel]->ObjectAt(dx, py)->GetRoom() == NULL
+      || levels[currentLevel]->ObjectAt(dx, py)->GetType() == t_path)) 
       {
          levels[currentLevel]->ObjectAt(dx, py)->SetVisible();
          dx--;
@@ -630,7 +675,8 @@ void Game::Visibility()
       // Check East
       dx = px;
       dx++;
-      while (dx < X_GRID_SIZE && !levels[currentLevel]->ObjectAt(dx, py)->IsVisible() && levels[currentLevel]->ObjectAt(dx, py)->GetRoom() == NULL) 
+      while (dx < X_GRID_SIZE && !levels[currentLevel]->ObjectAt(dx, py)->IsVisible() && (levels[currentLevel]->ObjectAt(dx, py)->GetRoom() == NULL
+         || levels[currentLevel]->ObjectAt(dx, py)->GetType() == t_path)) 
       {
          levels[currentLevel]->ObjectAt(dx, py)->SetVisible();
          dx++;

@@ -3,7 +3,7 @@ level;
   room 20, 10 at 5, 5;
     down at 11,10;
     start at 6,6;
-    up at 20, 13;
+    up at 8, 6;
     snake at 10, 10;
     gold at 6,13 and 16, 10;
     drink of sickness at 6,12;

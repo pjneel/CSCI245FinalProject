@@ -29,7 +29,6 @@ LevelObject::LevelObject(token t, Room* r)
    beneath = NULL;
 }
 
-
 bool LevelObject::IsVisible() const
 {
    return visible;

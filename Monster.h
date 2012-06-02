@@ -17,6 +17,7 @@ class Monster
 {
 public:
    Monster(int x, int y, MonsterType t, int level);
+   ~Monster();
    MonsterType GetType() const;   
    void SetVisible();
    void SetInvisible();
@@ -34,7 +35,6 @@ private:
    int health;   
    bool visible;
    Room* room;
-   LevelObject* beneath;
    int xPosition;
    int yPosition;
 };

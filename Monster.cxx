@@ -18,6 +18,12 @@ Monster::Monster(int x, int y, MonsterType t, int level)
    health = 7 + (rand() % (level + 1)) + 1;
 }
 
+Monster::~Monster()
+{
+   printf("Monster destructor called.");
+   this->room = NULL;
+}
+
 MonsterType Monster::GetType() const
 {
    return type;
@@ -50,6 +56,7 @@ int Monster::GetHealth() const
    return this->health;
 }
 
+// Combat - Handles combat with the player.
 int Monster::Combat(Player* p)
 {
       srand(time(NULL)); // initialize random seed

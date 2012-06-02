@@ -4,6 +4,7 @@
 
 #include <stdio.h>
 #include "lexfile.h"
+#include "Room.h"
 
 #ifndef LEVELOBJECT_H
 #define	LEVELOBJECT_H

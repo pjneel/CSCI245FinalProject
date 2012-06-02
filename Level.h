@@ -29,6 +29,7 @@ private:
 	int yStart;
 public:
 	Level();
+	~Level();
 	void AddLevelObject(LevelObject* lo, int xPosition, int yPosition);
 	LevelObject* ObjectAt(int xPosition, int yPosition) const;
 	LevelObject* RemoveItem(int xPosition, int yPosition);
@@ -42,6 +43,7 @@ public:
    Room* AddRoom(int xPosition, int yPosition, int width, int height);
    void SetStart(int xPosition, int yPosition);
    void GetStart(int &xPosition, int &yPosition);
+   void RemoveMonster(Monster* m);
    bool IsVisible(int xPosition, int yPosition) const;
    Room* GetRoom(int xPosition, int yPosition) const;
    int NumberMonsters() const;

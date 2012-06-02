@@ -31,6 +31,51 @@ Level::Level()
    yStart = -1;     
 }
 
+Level::~Level()
+{
+   vector<LevelObject*> deleted;
+   vector<Room*> deletedRooms;
+   for(int i = 0; i < X_GRID_SIZE; i++)
+   {
+      for (int j = 0; j < Y_GRID_SIZE; j++)
+      {
+         bool foundLO = false;
+         bool foundRoom = false;
+         bool foundBeneath = false;
+         for(int k = 0; k < deleted.size(); k++)
+         {            
+            if (deleted[k] == grid[i][j]) foundLO = true;
+            if (deleted[k] == grid[i][j]->GetBeneath()) foundBeneath = true;
+         }
+         if (!foundBeneath && grid[i][j]->GetBeneath() != NULL)
+         {
+            deleted.push_back(grid[i][j]->GetBeneath());
+         }
+         if (!foundLO)
+         {
+            deleted.push_back(grid[i][j]);
+            for(int t = 0; t < deletedRooms.size(); t++)
+            {
+               if (deletedRooms[t] == grid[i][j]->GetRoom())
+               {
+                  foundRoom = true;
+               }
+            }
+            if (!foundRoom)
+            {
+               deletedRooms.push_back(grid[i][j]->GetRoom());
+               grid[i][j]->SetRoom(NULL);
+            }
+         }
+         grid[i][j] = NULL;
+      }
+   }
+   
+   for(int i = 0; i < deletedRooms.size(); i++) delete deletedRooms[i];
+   for(int i = 0; i < deleted.size(); i++) delete deleted[i];
+}
+
+// DeleteAt - Set a grid position to NULL and delete the object.
 void Level::DeleteAt(int xPosition, int yPosition)
 {
    LevelObject* temp = grid[xPosition][yPosition];
@@ -38,11 +83,13 @@ void Level::DeleteAt(int xPosition, int yPosition)
    delete temp;
 }
 
+// SetNullAt - Set a grid position to NULL 
 void Level::SetNullAt(int xPosition, int yPosition)
 {
    grid[xPosition][yPosition] = NULL;
 }
 
+// AddLevelObject - Add new objects to the grid.
 void Level::AddLevelObject(LevelObject* lo, int xPosition, int yPosition)
 {
    if (grid[xPosition][yPosition] == NULL)
@@ -87,9 +134,10 @@ LevelObject* Level::RemoveItem(int xPosition, int yPosition)
 {
    LevelObject* temp = grid[xPosition][yPosition];
    grid[xPosition][yPosition] = NULL;
-   return temp;           
+   return temp;            
 }
 
+// IsWalkable - Check if a position is available to be moved into
 bool Level::IsWalkable(int xPosition, int yPosition) const
 {
    if (!(xPosition < X_GRID_SIZE && yPosition < Y_GRID_SIZE)) return false;
@@ -126,7 +174,6 @@ Monster* Level::MonsterAt(int xPosition, int yPosition) const
 Room* Level::AddRoom(int xPosition, int yPosition, int width, int height)
 {   
    Room* temp = new Room(xPosition, yPosition, width, height);
-   //rooms.push_back(temp);
    return temp;
 }
 
@@ -135,6 +182,7 @@ void Level::SetStart(int xPosition, int yPosition)
    xStart = xPosition;
    yStart = yPosition;
 }
+
 void Level::GetStart(int &xPosition, int &yPosition)
 {
    xPosition = this->xStart;
@@ -166,6 +214,21 @@ int Level::NumberMonsters() const
    return monsters.size();
 }
 
+void Level::RemoveMonster(Monster* m)
+{
+   gui_message("Monster is dead!");
+   for(int i = 0; i < monsters.size(); i++)
+   {
+      if (monsters[i] == m)
+      {
+         delete monsters[i];
+         monsters.erase(monsters.begin()+i);
+         return;
+      }
+   }
+}
+
+// MoveMonsters - Handles movement for monsters checking for player in the same room and combat.
 void Level::MoveMonsters(Player* p)
 {
    srand(time(NULL)); // initialize random seed  
@@ -198,12 +261,7 @@ void Level::MoveMonsters(Player* p)
          else if (result <= -1)
          {
             gui_message("Player hit monster for %d damage!", abs(result));
-            if (monsters[a]->GetHealth() < 1)
-            {
-               gui_message("Monster is dead!");
-               delete monsters[a];
-               monsters.erase(monsters.begin()+a);
-            }
+            if (monsters[a]->GetHealth() < 1) RemoveMonster(monsters[a]);
          }
          else 
          {
@@ -236,7 +294,6 @@ void Level::MoveMonsters(Player* p)
          }
          else if (move >= 7 && move <= 12)
          {
-            //printf ("Monster #%d - Move towards player.\n", a);
             int dx = p->GetX() - xNew; 
             int dy = p->GetY() - yNew;
             if (abs(dx) > abs(dy)) 
